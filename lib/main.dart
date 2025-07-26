@@ -67,7 +67,7 @@ void main() async {
     ChangeNotifierProvider(create: (context) => GetDatabase()),
     ChangeNotifierProvider(create: (context) => NotificationProvider()),
     ChangeNotifierProvider(create: (context) => AuthServices()),
-    //ChangeNotifierProvider(create: (_) => NativeAdsState()),
+    //ChangeNotifierProvider(create: (_) => NativeAdsState()), done
     ChangeNotifierProvider(create: (context) => NavigatePageAds()),
     ChangeNotifierProvider(create: (context) => ThemeProvider()),
     ChangeNotifierProvider(create: (context) => AppLocalizationsNotifier()),
