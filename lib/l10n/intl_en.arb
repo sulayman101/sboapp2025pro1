@@ -1,0 +1,397 @@
+{
+  "@@locale": "en",
+  "language": "English",
+  "changeLanguage": "Language",
+  "@language": {
+    "description": "Selected Language"
+  },
+
+  "appBarHome": "SBO App",
+  "appBarUpload": "Upload Book",
+  "appBarProfile": "Profile",
+  "appBarNotification": "Notifications",
+  "appBarManage": "Manage books",
+  "appBarPayBook": "Pay Book",
+  "appBarRequest": "Request Upload Book",
+  "appBarSupport": "Help Center",
+  "appBarManageUsers": "Manage Users",
+  "appBarRequestUsers": "Requests Users",
+  "appBarRequestUsersHis": "History",
+  "appBarCropImg" : "Crop Image",
+  "appBarAddCategory": "Add category",
+  "appBarUpdateNotify": "Update Notifications",
+  "appBarManageHeader": "Manage Headers",
+  "appBarWinWeek": "Win Weakly Gift",
+  "appBarEditBook": "Edit Book",
+
+  "bodyWait": "Waiting...",
+  "bodysubscribed": "Subscribed",
+
+  "bodySignUpNow": "Sign Up and join us",
+
+  "bodyVerifyEmail": "Verify Email",
+  "bodyVerifyNum": "Verify Number",
+
+  "bodyPaid": "Paid",
+  "bodyFree": "Free",
+  "bodySelectImage": "Select Image",
+  "bodySelectPDF": "Select PDF",
+  "bodyNoteBBooFeeText": "Note: Book fee is $",
+  "bodyNoteBookPublishText": "books will be published after you paid.",
+  "bodyPayFee": "Pay fee",
+  "bodyLblBookPrice": "Book Price",
+
+  "bodyAddCategory": "Add Category",
+  "bodyLblCategory": "Category",
+
+  "bodyAdd": "Add",
+  "bodyUpdate": "Update",
+  "bodySomali" : "Somali",
+  "bodyArabic" : "Arabic",
+  "bodyEnglish" : "English",
+  "bodySkip": "Skip",
+  "bodyGetStart": "Get Started",
+  "bodyComingSoon": "Coming soon...",
+  "bodyTranslated": "Translated by",
+  "bodySelectLang": "Select Language",
+  "bodyFavorite": "Favorite",
+  "bodySold": "Sold",
+
+
+  "bodyOk": "Ok",
+  "bodyNewBooAdded": "New Book Added",
+  "bodyReadNow": "Read Now",
+  "bodyDone": "Done",
+  "bodyAll": "All",
+  "bodyAddBook": "Add book",
+  "bodyBooks": "Books",
+  "bodyRequestUploadBook": "Request Upload Book",
+  "bodyUsers": "Users",
+  "bodyNotify": "Notifications",
+  "bodyUpdateBooFee": "Update book fee",
+  "bodyUpdatePrice": "Update Price",
+  "bodyPrice": "Price",
+  "bodyEnterNewPrice": "Enter new price",
+  "bodyAccountNum": "Account number",
+  "bodyCurrentAcc": "Current Acc",
+  "bodyUserRequest": "User requests",
+  "bodyFeedbackAndHelp": "Feedback and Help",
+  "bodyRateUs": "Rate App",
+  "bodySettings": "Settings",
+  "bodyShareApp": "Share App",
+  "bodySingOut": "Sing Out",
+  "bodyFavAnPaidBook": "My library",
+  "bodyFavBook": "Favorite books",
+  "bodyPaidBook": "Paid books",
+  "bodyManage" : "Manage books",
+  "bodyChangeTheme": "Change Theme",
+  "bodyVersion": "Version",
+
+
+
+  "bodyBookCoverPicture": "Book Cover Picture",
+  "bodyBookChangeImage": "Change image",
+  "bodyBookChangePDF": "Change PDF",
+  "bodyBookSelectBookPdf": "Select book Pdf",
+  "bodyBookSelectOneOfThem": "Select one of them",
+  "bodyBookFeeUserErrorCont": "if occurred mistake please contact us on number: ",
+  "bodyBookSave": "Save",
+
+  "bodyBooBooPrInfo": "Book Price Info",
+  "bodyBookName": "Name:",
+  "bodyBookID": "ID:",
+  "bodyBookPrice": "Price:",
+  "bodyBookStartProcess": "Start process",
+  "bodyBookCancel": "Cancel",
+  "bodyBookContactUs": "Contact Us on",
+  "bodyBookWhat": "WhatsApp",
+  "bodyBookSendUsYou": "Send us your tr. Id and you name",
+  "bodyBookNext": "Next",
+
+  "bodyUploadBWaitingText": "You have requested to upload books We are review your request with in 2 or 3days, so please wait...",
+  "bodyUploadBHello": "hello",
+  "bodyUploadBWelcomeSBO": "Welcome to SBO app",
+  "bodyUploadBRequestNow": "Request Now",
+  "bodyUploadBSendRequest": "Send Request",
+  "bodySelectAgentName": "Select agent name",
+  "bodyUploadBookRequest": "Upload book request",
+  "bodyClearNotifications": "Clear Notifications",
+
+  "bodyUserNB": "Do not change or erase!",
+  "bodyUserID": "UserID",
+  "bodySubmit": "Submit",
+
+  "bodyEdit": "Edit",
+  "bodyMyBook": "My books",
+  "bodyChangePsd": "Change Password",
+  "bodyCheckPsd": "Please Check your password",
+  "bodyCancel": "Cancel",
+  "bodySetPsd": "Set Password",
+  "bodyIncorrectPsd": "Incorrect Password",
+  "bodyContinue": "Continue",
+  "bodySetProfile": "Set Profile",
+
+  "bodyLblName": "Name",
+  "bodyLblEmail": "Email",
+  "bodyLblPhone": "Phone",
+  "bodyLblPsd": "Password",
+  "bodyLblOldPsd": "Old Password",
+  "bodyLblConfirmPsd": "Confirm Password",
+  "bodyLblBook": "Book Name",
+  "bodyLblBooAuthor": "Book Author",
+  "bodyBookLblAr": "As Arabic",
+  "bodyBooLblTelecomName": "Telecom Name",
+  "bodyUploadBLblRealName": "Real Name",
+  "bodyUploadBLblContactEmail": "Contact Email",
+  "bodyUploadBLblContactPhone": "Contact Phone",
+  "bodyLblSelectPro": "Select Problem Issue",
+  "bodyLblDescr": "Describe",
+  "bodyLblNewPsd": "New Password",
+  "bodyLblMsg": "Message",
+  "bodyLblImgLink": "Image Link",
+  "bodyLblLanguage": "Language",
+
+
+  "bodyActive": "Active",
+  "bodyRequests": "Requests",
+  "bodyRejects": "Rejects",
+
+  "bodyLblRedirectLink": "Redirect Link",
+  "bodyHintRedirectLink": "Enter Redirect Link",
+  "bodyEnterValidUrl": "Please Enter valid Url",
+  "bodyLblTitle": "Title",
+  "bodyHintTitle": "Enter a Title",
+  "bodySend": "Send",
+
+  "bodyHintName": "Enter your full Name",
+  "bodyHintEmail": "Enter your Email",
+  "bodyHintPhone": "Enter your Phone (Optional)",
+  "bodyHintPsd": "Enter your Password",
+  "bodyHintOldPsd": "Enter Old Password",
+  "bodyHintConfirmPsd": "Confirm your Password",
+  "bodyHintBook": "Enter Book Name",
+  "bodyHintBookAuthor": "Enter Book Author",
+  "bodyHintBookPrice": "Enter Book Price",
+  "bodyHintCategory": "Add Category",
+  "bodyBookHintAr": "Enter as a Arabic",
+  "bodyBooHintTelecomName": "Choose you number's Telecom name",
+  "bodyUploadBHintRealName": "Enter Real Name",
+  "bodyUploadBHintContactEmail": "Enter Contact Email",
+  "bodyUploadBHintContactPhone": "Enter Contact Phone",
+  "bodyBookHintBook": "Enter Book Name",
+  "bodyHintDescr": "Describe your problem",
+  "bodyHintNewPsd": "Enter New Password",
+  "bodyHintTrans": "Enter Translated by author name",
+  "bodyHintMsg": "Enter Message",
+  "bodyHintImgLink": "Enter Image Link",
+
+  "bodyBookInfo": "Book Info",
+  "bodyBookAuthor": "Author",
+  "bodyBookTranslate": "Translate by",
+  "bodyBookPosted": "Posted",
+  "bodyBookLikes": "Like",
+
+  "bodyBookReport": "Book Report",
+  "bodyReport": "Report",
+
+
+  "bodyBookRates": "Rate",
+  "bodyBookRated": "Rated",
+  "bodySeeMore": "See More",
+  "bodyTranslatedBy": "Translated by",
+  "bodyBookTitle": "Book title",
+  "bodyInfoBookAuthor": "Book Author",
+  "bodyBookRate": "Book Rate",
+  "bodyBookUploader": "Book Uploader",
+  "bodyWaiting": "Waiting...",
+  "bodyPayWithGooglePlay": "Pay with Google Play",
+  "bodyPayWithLocale": "Pay with locale payment",
+
+  "bodyPurchase": "Purchase",
+  "bodyMostPp": "Most Popular",
+
+  "bodyRemoveAd": "Remove Ad",
+  "bodyPay": "Pay",
+  "bodyMonth": "Month",
+  "bodyMonths": "Months",
+
+
+
+  "bodySingUp": "Sign Up",
+  "bodySingIn": "Sing In",
+  "bodyAgreeOur": "Agree our terms and privacy",
+  "bodyOurTerms": "terms and privacy",
+  "bodyPurchaseNote": "This app can be used without a subscription. With a subscription, you get unlimited access to all paid features and the ads will be removed. Payment will be charged to your Google Play account at the confirmation of purchase. Subscriptions automatically renew unless canceled at least 24 hours before the current period ends. Manage or cancel subscriptions in your Google Play account settings anytime.",
+  "bodyAlready": "Already i have an account",
+  "bodyRemember": "Remember",
+  "bodyForgetPsd": "Forget Password",
+  "bodyIDonT": "I don't have an account",
+  "bodyCreate": "Create new Account",
+  "bodyReset": "Reset",
+  "bodySendVerification": "Send Verification",
+  "bodyWaitResend" : "Please wait resend",
+  "bodyVContinue": "Continue",
+  "bodyRedirect": "if you not redirected after verification, click on the Continue button",
+  "otherUserSentVerification": "We have just sent email verification link on ",
+  "bodyUserNote": " please check email and click on that link to verify your email address ",
+  "bodyOr": "Or",
+  "bodyContWitG": "Continue with google",
+  "bodyWelcomeBack": "Welcome back!",
+  "bodyRefresh": "Refresh",
+  "bodyResend": "Resend",
+  "bodyRemove": "Remove",
+  "bodyUserNotFound": "User Not Found",
+  "bodyBookSubTitle": "Add book • Manage Books • Paid books",
+  "bodyUserSubTitle": "Role • Agents",
+  "bodyAgentTip": "To see Agent profile tap and hold cover",
+  "bodyAgent": "Agent",
+  "bodyNotifySubTitle": "Make Announcement • Make Alert",
+  "bodyWinWeek": "Win Weakly Gift",
+
+
+  "bodySignDelete": "Sign out and delete",
+  "bodyDoWentDelete": "Do you went to Delete this user account",
+  "bodyNewCaNewCategory": "New Category",
+  "bodyAddNotify": "Add Notify",
+  "bodyManageNotify": "Manage Notify",
+  "bodyAllUsers": "Users",
+  "bodyAllAuthors": "Authors",
+  "bodyAllAdmins": "Admins",
+  "bodyAllAgents": "Agents",
+  "bodyHeaderBanner": "Header Banner",
+
+  "bodyNotChangeAdmins": "You don't change admins role",
+
+  "bodySelectCategory": "Select category",
+  "bodyAddOrChooseCategory": "Add or Choose Category",
+
+  "bodyThemes": "Themes",
+
+  "bodyColorBlue": "blue",
+  "bodyColorGreen": "green",
+  "bodyColorPurple": "purple",
+  "bodyColorGrey": "grey",
+  "bodyColorBrown": "brown",
+  "bodyColorPink": "pink",
+
+  "bodyCheckYEmail": "Please check your email",
+  "bodyExist": "Enter an exist email",
+  "bodyEmptyEmail": "Empty! Please Enter you Email",
+  "bodyCheckName": "Please check your name",
+  "bodyCheckPhone": "Please check your phone",
+  "bodyPaIsTooShort": "Please check your name",
+  "bodyCheckCrmPsd": "Please check your confirm password",
+  "bodyYourPsdIsNotMatch": "Your password is not match!",
+  "bodyEnterValid": "Please enter a valid email",
+  "bodyErrorOccurred": "Error occurred",
+  "bodyMinPsdError": "Your password  is too short!",
+  "bodyNotFound": "Not found",
+  "bodyNoData": "No Data",
+  "bodyDeleteAccount": "Delete account",
+  "bodyDeleteNote": "Do you went to delete your account",
+  "bodyDeleteRem": "Remember if you delete your account you can not recovery or undo.",
+  "bodySendResetLink": "Send Reset Link",
+  "bodyResendPsdWait": "Please wait 5m to resend",
+  "bodyResult": "Result",
+  "bodyWinGift": "Win Gift",
+  "bodyEnableWkGift":"Enable Weekly Gift",
+  "bodyLuckyNumber": "Lucky number",
+  "bodyUpLuckyNum":"Update Lucky Number",
+  "bodyWinUser": "Win User",
+  
+  "bodyLastLuckyNum":"Last lucky number:",
+  "bodyLastDateLucky": "Last date:",
+  "bodyWinThisGift":"Win this Gift",
+  "bodyShowGift":"Show Gift",
+  "bodyLuckyNum":"Lucky Number:",
+  "bodyCongregateGift":"Congregation \nYou win weekly gift and you got",
+  "bodyAlreadyDone": "you already done, Please wait next week",
+  "bodyLucky": "Lucky",
+  "bodyPreparingGift": "Preparing new gift...",
+  "bodySure": "sure",
+  "bodyPriChange": "Privilege Change",
+
+  "bodyLblSelectProblemIssue":  "Select Problem Issue",
+  "bodyLblDescribe":  "Describe",
+  "bodyHintDescribe": "Describe your problem",
+  "bodyLblReportDesc": "Report description",
+  "bodyHintReportDesc": "Tell us why you report this book",
+  "bodyReported": "Reported",
+  "bodyUserReportNote":  "Do not change or erase! \n\n",
+  "bodyWeSupportLanguages": "Supported Languages: Somali, Arabic and English-US",
+
+
+  "bodyShareAppLink": "Welcome to the SBO app! You can get the latest books, read more learn more. Check it out and install now",
+
+  "bodyUserManActions": "Do you want to remove ${user} from your agent.",
+  "@bodyUserManActions": {
+    "placeholders": {
+      "user": {
+        "type": "String",
+        "example": "Sultan"
+      }
+    }
+  },
+
+  "bodyWeekWinner" : "Winner of the week is {winUser} please try again next week",
+  "@bodyWeekWinner": {
+    "description": "A message when the user is win a week",
+    "placeholders": {
+      "winUser": {
+        "type": "String",
+        "example": "Suldanka"
+      }
+    }
+  },
+
+  "bodyRoleActions": "Do you went to promote {role} to {newRole} this user {user}",
+  "@bodyRoleActions": {
+    "description": "A message when the role change",
+    "placeholders": {
+      "role": {
+        "type": "String",
+        "example": "User"
+      },
+      "newRole": {
+        "type": "String",
+        "example": "User"
+      },
+      "user": {
+        "type": "String",
+        "example": "Sultan"
+      }
+    }
+  },
+  "bodyEmptyValid": "{currentField} can't be empty",
+  "@bodyEmptyValid": {
+    "description": "A message when the user leave empty field",
+    "placeholders": {
+      "currentField": {
+        "type": "String",
+        "example": "email"
+      }
+    }
+  },
+
+  "bodySorryGift": "You got {currentNumber} try again next weak",
+  "@bodySorryGift": {
+    "description": "A message when the user gets a certain number",
+    "placeholders": {
+      "currentNumber": {
+        "type": "String",
+        "example": "5"
+      }
+    }
+  },
+  "bodyAlreadyGot": "You already got {lucky} this week, please wait until next weak",
+  "@bodyAlreadyGot": {
+    "description": "A message when the user has already got a number",
+    "placeholders": {
+      "lucky": {
+        "type": "String",
+        "example": "7"
+      }
+    }
+  }
+
+}

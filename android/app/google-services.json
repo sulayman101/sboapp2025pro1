@@ -1,0 +1,36 @@
+{
+  "project_info": {
+    "project_number": "536159348717",
+    "firebase_url": "https://sboapp-2a2be-default-rtdb.firebaseio.com",
+    "project_id": "sboapp-2a2be",
+    "storage_bucket": "sboapp-2a2be.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:536159348717:android:f31228dd813ea7a9f7e9e4",
+        "android_client_info": {
+          "package_name": "com.dsd.sboapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAPnP5N-MrfXxvuRJC9oWhCCY4tImlB-o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "536159348717-dta0g4adkn6u1sv6s12ag5l63o0bb8m1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-5978208654644743~5021612955"
+    }
+  ],
+  "configuration_version": "1"
+}

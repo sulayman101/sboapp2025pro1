@@ -1,0 +1,405 @@
+{
+  "@@locale": "ar",
+  "language": "العربية",
+  "changeLanguage": "اللغة",
+  "@language": {
+    "description": "اللغة المختارة"
+  },
+
+  "appBarHome": "SBO App",
+  "appBarUpload": "تحميل كتاب",
+  "appBarProfile": "الملف الشخصي",
+  "appBarManage": "إدارة الكتب",
+  "appBarPayBook": "دفع الكتاب",
+  "appBarRequest": "طلب تحميل كتاب",
+  "appBarSupport": "مركز المساعدة",
+  "appBarManageUsers": "إدارة المستخدمين",
+  "appBarRequestUsers": "طلبات المستخدمين",
+  "appBarRequestUsersHis": "التاريخ",
+  "appBarCropImg": "قص الصوره",
+  "appBarAddCategory": "إضافة فئة",
+  "appBarUpdateNotify": "إشعارات التحديث",
+  "appBarManageHeader": "إدارة شعار الرأس",
+  "appBarWinWeek": "ربح هدية أسبوعية",
+  "appBarEditBook": "كتاب التعديل",
+
+  "bodyWait":"انتظار...",
+  "bodysubscribed": "مشترك",
+
+
+  "bodySignUpNow": "سجّل وانضم إلينا",
+
+  "bodyVerifyEmail": "تحقق من البريد الإلكتروني",
+  "bodyVerifyNum": "تحقق من الرقم",
+  "bodyWaitResend": "يرجى الانتظار لإعادة الإرسال",
+  "bodyWeSupportLanguages": "اللغات المؤيدة: الصومالية والعربية والإنجليزية-الولايات المتحدة",
+
+  "bodyPaid": "مدفوع",
+  "bodyFree": "مجاني",
+  "bodySelectImage": "اختر صورة",
+  "bodyBookSelectBookPdf": "اختر كتاب Pdf",
+  "bodySelectPDF": "اختر PDF",
+  "bodyNoteBBooFeeText": "ملاحظة: رسوم الكتاب هي $",
+  "bodyNoteBookPublishText": "سيتم نشر الكتب بعد الدفع.",
+  "bodyPayFee": "دفع الرسوم",
+  "bodyAddCategory": "إضافة فئة",
+  "bodyAdd": "إضافة",
+  "bodyUpdate": "تحديث",
+  "bodySomali" : "صومالي",
+  "bodyArabic" : "عربي",
+  "bodyEnglish" : "إنجليزي",
+  "bodySkip": "يتخطى",
+  "bodyGetStart": "البدء",
+  "bodyComingSoon":  "قريباً...",
+  "bodyTranslated":  "الترجمة",
+  "bodySelectLang": "اختار اللغة",
+  "bodyFavorite": "مفضل",
+  "bodySold": "مُباع",
+
+  "bodyOk": "حسنًا",
+  "bodyNewBooAdded": "تمت إضافة كتاب جديد",
+  "bodyReadNow": "اقرأ الآن",
+  "bodyDone": "تم",
+  "bodyAll": "الكل",
+  "bodyAddBook": "أضف كتاب",
+  "bodyBooks": "كتب",
+  "bodyRequestUploadBook": "طلب تحميل كتاب",
+  "bodyUsers": "مستخدمين",
+  "bodyNotify": "إشعارات",
+  "bodyUpdateBooFee": "تحديث رسوم الكتاب",
+  "bodyUpdatePrice": "تحديث السعر",
+  "bodyPrice": "السعر",
+  "bodyEnterNewPrice": "أدخل السعر الجديد",
+  "bodyAccountNum": "رقم الحساب",
+  "bodyCurrentAcc": "الحساب الحالي",
+  "bodyUserRequest": "طلبات المستخدم",
+  "bodyFeedbackAndHelp": "التعليقات والمساعدة",
+  "bodyRateUs": "قيم التطبيق",
+  "bodySettings": "الإعدادات",
+  "bodyShareApp": "شارك التطبيق",
+  "bodySingOut": "تسجيل الخروج",
+  "bodyFavAnPaidBook": "مكتبتي",
+  "bodyFavBook": "الكتب المفضلة",
+  "bodyPaidBook": "الكتب المدفوعة",
+  "bodyManage": "إدارة الكتب",
+  "bodyChangeTheme": "غير الخلفية",
+  "bodyVersion": "الإصدار",
+
+  "bodyBookCoverPicture": "صورة غلاف الكتاب",
+  "bodyChangeImage": "تغيير الصورة",
+  "bodyChangePDF": "تغيير PDF",
+  "bodySelectBookPdf": "اختر PDF الكتاب",
+  "bodySelectOneOfThem": "اختر واحدًا منهم",
+  "bodyFeeUserErrorCont": "إذا حدث خطأ، يرجى الاتصال بنا على الرقم: ",
+  "bodySave": "حفظ",
+
+  "bodyBooPrInfo": "معلومات سعر الكتاب",
+  "bodyBookName": "الاسم:",
+  "bodyBookID": "المعرف:",
+  "bodyBookkPrice": "السعر:",
+  "bodyBookStartProcess": "بدء العملية",
+  "bodyBookCancel": "إلغاء",
+  "bodyBookContactUs": "اتصل بنا على",
+  "bodyBookWhat": "واتساب",
+  "bodyBookSendUsYou": "أرسل لنا معرف المعاملة واسمك",
+  "bodyBookNext": "التالي",
+
+  "bodyUploadBWaitingText": "لقد طلبت تحميل كتب نحن نراجع طلبك في غضون 2 أو 3 أيام، لذا يرجى الانتظار...",
+  "bodyUploadBHello": "مرحبا",
+  "bodyUploadBWelcomeSBO": "مرحبًا بكم في تطبيق SBO",
+  "bodyUploadBRequestNow": "اطلب الآن",
+  "bodyUploadBSendRequest": "إرسال الطلب",
+  "bodySelectAgentName": "إختار اسم الوكيل",
+  "bodyUploadBookRequest": "طلب تحميل  كتاب",
+  "bodyAllUsers": "المستخدمون",
+  "bodyAllAuthors": "المؤلفون",
+  "bodyAllAdmins": "مدراء",
+  "bodyAllAgents": "وكلاء",
+  "bodyHeaderBanner": "لافتة رأسية",
+
+  "bodyBookChangeImage": "تغيير الصورة",
+  "bodyBookChangePDF": "تغيير PDF",
+  "bodyNewCaNewCategory": "فئة جديدة",
+
+  "bodyUserNB": "لا تغير أو تحذف!",
+  "bodyUserID": "معرف المستخدم",
+  "bodySubmit": "إرسال",
+
+  "bodyEdit": "تعديل",
+  "bodyName": "الاسم",
+  "bodyEmail": "البريد الإلكتروني",
+  "bodyPhone": "الهاتف",
+  "bodyMyBook": "كتابي",
+  "bodyChangePsd": "تغيير كلمة المرور",
+  "bodyCheckPsd": "يرجى التحقق من كلمة المرور الخاصة بك",
+  "bodyCancel": "إلغاء",
+  "bodySetPsd": "تعيين كلمة المرور",
+  "bodyIncorrectPsd": "كلمة المرور غير صحيحة",
+  "bodyContinue": "متابعة",
+  "bodySetProfile": "تعيين الملف الشخصي",
+
+
+  "bodyLblName": "الاسم",
+  "bodyLblEmail": "البريد الإلكتروني",
+  "bodyLblPhone": "الهاتف",
+  "bodyLblPsd": "كلمة المرور",
+  "bodyLblOldPsd": "كلمة المرور القديمة",
+  "bodyLblConfirmPsd": "تأكيد كلمة المرور",
+  "bodyLblBook": "اسم الكتاب",
+  "bodyLblBooAuthor": "مؤلف الكتاب",
+  "bodyLblBookPrice": "سعر الكتاب",
+  "bodyLblCategory": "الفئة",
+  "bodyLblCover": "رابط الغلاف",
+  "bodyBooLblTelecomName": "اسم شركة الاتصالات",
+  "bodyUploadBLblRealName": "الاسم الحقيقي",
+  "bodyUploadBLblContactEmail": "البريد الإلكتروني للتواصل",
+  "bodyUploadBLblContactPhone": "هاتف التواصل",
+  "bodyUsrLblSelectPro": "اختر مشكلة",
+  "bodyUsrLblDescr": "وصف",
+  "bodyLblNewPsd": "كلمة المرور الجديدة",
+  "bodyLblMsg": "رسالة",
+  "bodyLblImgLink": "رابط الصورة",
+  "bodyLblLanguage": "اللغة",
+
+  "bodyActive": "نشط",
+  "bodyRequests": "الطلبات",
+  "bodyRejects": "يرفض",
+
+  "bodyAgentTip": "لرؤية ملف تعريف الوكيل، انقر مع الاستمرار على الغطاء",
+  "bodyAgent": "وكيل",
+
+
+  "bodyLblRedirectLink": "رابط إعادة التوجيه",
+  "bodyHintRedirectLink": "أدخل رابط إعادة التوجيه",
+  "bodyEnterValidUrl": "الرجاء إدخال عنوان URL صالح",
+  "bodyLblTitle": "العنوان",
+  "bodyHintTitle": "أدخل عنوانًا",
+  "bodySend": "إرسال",
+
+  "bodyBookHintAr": "ادخل بالعرعى",
+  "bodyHintDescr": "أوصف مشكلتك",
+  "appBarNotification": "إعلانات",
+  "bodyClearNotifications": "مسح الإشعارات",
+  "bodyBookLblAr": "بالعرعى",
+  "bodyBookSelectOneOfThem": "اختر واحد منهم",
+  "bodyBookFeeUserErrorCont": "إذا حصلت مشكلة ارجوك تواصل معنا من الرقم",
+  "bodyBookSave": "حفظ",
+  "bodyBooBooPrInfo": "معلومات سعر الكتاب",
+  "bodyShareAppLink": "مرحبا بك في تطبيق SBO يمكنك ان تحصل احدث الكتب , اقرأ اكثر وتعلم اكثر، تحقق به, وانزله",
+  
+
+  "bodyHintBook": "أدخل اسم الكتاب",
+  "bodyHintBookAuthor": "أدخل مؤلف الكتاب",
+  "bodyHintBookPrice": "أدخل سعر الكتاب",
+  "bodyHintCategory": "أضف فئة",
+  "bodyHintCover": "أدخل رابط الغلاف",
+  "bodyBooHintTelecomName": "اختر اسم شركة الاتصالات لرقمك",
+  "bodyUploadBHintRealName": "أدخل الاسم الحقيقي",
+  "bodyUploadBHintContactEmail": "أدخل البريد الإلكتروني للتواصل",
+  "bodyUploadBHintContactPhone": "أدخل هاتف التواصل",
+  "bodyBookHintBook": "أدخل اسم الكتاب",
+  "bodyUsrHintDescr": "صف مشكلتك",
+  "bodyHintOldPsd": "أدخل كلمة المرور القديمة",
+  "bodyHintNewPsd": "أدخل كلمة المرور الجديدة",
+  "bodyHintName": "أدخل اسمك الكامل",
+  "bodyHintEmail": "أدخل بريدك الإلكتروني",
+  "bodyHintPhone": "أدخل هاتفك (اختياري)",
+  "bodyHintPsd": "أدخل كلمة المرور",
+  "bodyHintConfirmPsd": "أكد كلمة المرور",
+  "bodyHintTrans": "أدخل اسم المترجم",
+  "bodyHintMsg": "أدخل رسالة",
+  "bodyHintImgLink": "أدخل رابط الصورة",
+
+  "bodySingUp": "التسجيل",
+  "bodySingIn": "تسجيل الدخول",
+  "bodyAgreeOur": "أوافق على الشروط والخصوصية",
+  "bodyOurTerms": "الشروط والخصوصية",
+  "bodyPurchaseNote": "يمكن استخدام هذا التطبيق بدون اشتراك. مع الاشتراك، ستحصل على وصول غير محدود إلى جميع الميزات المدفوعة وسيتم إزالة الإعلانات. سيتم خصم المبلغ من حسابك على Google Play عند تأكيد الشراء. يتم تجديد الاشتراكات تلقائيًا ما لم يتم إلغاؤها قبل 24 ساعة على الأقل من انتهاء الفترة الحالية. يمكنك إدارة أو إلغاء الاشتراكات في إعدادات حساب Google Play الخاص بك في أي وقت",
+  "bodyAlready": "لدي حساب بالفعل",
+  "bodyRemember": "تذكرني",
+  "bodyForgetPsd": "نسيت كلمة المرور",
+  "bodyIDonT": "ليس لدي حساب",
+  "bodyCreate": "إنشاء حساب جديد",
+  "bodyReset": "إعادة تعيين",
+  "bodySendVerification": "إرسال التحقق",
+  "bodyVContinue": "متابعة",
+  "bodyRedirect": "إذا لم يتم إعادة توجيهك بعد التحقق، انقر على زر المتابعة",
+  "otherUserSentVerification": "لقد أرسلنا للتو رابط التحقق من البريد الإلكتروني",
+  "bodyUserNote": " يرجى التحقق من البريد الإلكتروني والنقر على الرابط لتأكيد عنوان بريدك الإلكتروني",
+  "bodyOr": "أو",
+  "bodyContWitG": "متابعة مع Google",
+  "bodyWelcomeBack": "مرحبًا بعودتك!",
+  "bodyRefresh": "تحديث",
+  "bodyResend": "إعادة الإرسال",
+  "bodyRemove": "إزالة",
+  "bodyUserNotFound": "المستخدم غير موجود",
+  "bodyBookSubTitle": "إضافة كتاب • إدارة الكتب • الكتب المدفوعة",
+  "bodyUserSubTitle": "دور • وكلاء",
+  "bodyNotifySubTitle": "عمل إعلان • عمل تنبيه",
+  "bodyWinWeek": "ربح هدية أسبوعية",
+  "bodySignDelete": "تسجيل الخروج وحذف الحساب",
+  "bodyDoWentDelete": "هل ذهبت لحذف حساب المستخدم هذا",
+  "bodyAddNotify":"إضافة إشعار",
+  "bodyManageNotify": "إدارة الإخطار",
+
+  "bodyNotChangeAdmins": "لا يمكنك تغيير دور المشرف",
+
+  "bodySelectCategory": "اختر فئة",
+  "bodyAddOrChooseCategory": "أضف أو اختر فئة",
+
+  "bodyThemes": "خلفيات",
+
+  "bodyColorBlue": "أزرق",
+  "bodyColorGreen": "أخضر",
+  "bodyColorPurple": "أرجواني",
+  "bodyColorGrey": "رمادي",
+  "bodyColorBrown": "بني",
+  "bodyColorPink": "وردي",
+
+  "bodyCheckYEmail": "يرجى التحقق من بريدك الإلكتروني",
+  "bodyExist": "أدخل بريد إلكتروني موجود",
+  "bodyEmptyEmail": "فارغ! يرجى إدخال بريدك الإلكتروني",
+  "bodyCheckName": "يرجى التحقق من اسمك",
+  "bodyCheckPhone": "يرجى التحقق من هاتفك",
+  "bodyPaIsTooShort": "يرجى التحقق من اسمك",
+  "bodyCheckCrmPsd": "يرجى التحقق من تأكيد كلمة المرور",
+  "bodyYourPsdIsNotMatch": "كلمة المرور الخاصة بك لا تتطابق!",
+  "bodyEnterValid": "يرجى إدخال بريد إلكتروني صالح",
+  "bodyErrorOccurred": "حدث خطأ",
+
+  "bodyLblReportDesc": "وصف التقرير",
+  "bodyHintReportDesc": "أخبرنا عن سبب الإبلاغ عن هذا الكتاب",
+  "bodyReported": "تم الإبلاغ عنه",
+
+  "bodyMinPsdError": "كلمة المرور الخاصة بك قصيرة جدًا!",
+  "bodyNotFound": "غير معثور عليه",
+  "bodyNoData": "لايوجد بيانات",
+  "bodyDeleteAccount": "حذف الحساب",
+  "bodyDeleteNote": "هل تريد حذف حسابك",
+  "bodyDeleteRem": "تذكر أنه إذا قمت بحذف حسابك، فلن تتمكن من استرداده أو التراجع عنه.",
+  "bodySendResetLink": "أرسل رابط إعادة التعيين",
+  "bodyResendPsdWait": "الانتظار 5 دقائق لإعادة الإرسال",
+  "bodyResult": "النتيجة",
+  "bodyWinGift": "الفوز بالهدية",
+  "bodyEnableWkGift": "تمكين الهدية الأسبوعية",
+  "bodyLuckyNumber": "رقم الحظ",
+  "bodyUpLuckyNum":"تحديث رقم الحظ",
+  "bodyWinUser": "الفوز بالمستخدم",
+
+  "bodyLblSelectProblemIssue": "حدد مشكلة المشكلة",
+  "bodyLblDescribe":  "وصف",
+  "bodyUserReportNote":  "لا تغير أو تمسح! \n\n",
+
+
+  "bodyLastLuckyNum":"رقم الحظ الأخير:",
+  "bodyWinThisGift":"اربح هذه الهدية",
+  "bodyShowGift":"عرض الهدية",
+  "bodyLuckyNum":"رقم الحظ:",
+  "bodyCongregateGift":"مبروك \nلقد فزت بالهدية الأسبوعية وحصلت عليها",
+  "bodyAlreadyDone": "لقد انتهيت بالفعل، يرجى الانتظار الأسبوع المقبل",
+  "bodyLucky": "محظوظ",
+  "bodyPreparingGift": "جارٍ تحضير هدية جديدة...",
+  "bodyLastDateLucky": "اخر موعد:",
+  "bodySure": "بالتأكيد",
+  "bodyPriChange": "تغيير الامتياز",
+
+  "bodyBookInfo": "معلومات الكتاب",
+  "bodyBookAuthor": "المؤلف",
+  "bodyBookTranslate": "الترجمة",
+  "bodyBookPosted": "تم النشر",
+
+  "bodyBookRates": "مقيّم",
+  "bodyBookRated": "تقييم",
+  "bodySeeMore": "شاهد المزيد",
+  "bodyTranslatedBy": "الترجمة",
+  "bodyBookTitle": "عنوان الكتاب",
+  "bodyInfoBookAuthor": "مؤلف الكتاب",
+  "bodyBookRate": "تقييم الكتاب",
+  "bodyBookUploader": "تحميل الكتب",
+  "bodyWaiting": "انتظار...",
+  "bodyPayWithGooglePlay": "الدفع باستخدام Google Play",
+  "bodyPayWithLocale": "الدفع باستخدام الدفع المحلي",
+  "bodyRemoveAd": "إزالة الإعلان",
+
+  "bodyPurchase": "شراء",
+  "bodyMostPp": "الأكثر شعبية",
+  "bodyPay": "يدفع",
+  "bodyMonth": "شهر",
+  "bodyMonths": "أشهر",
+
+  "bodyBookReport": "تقرير الكتاب",
+  "bodyReport": "تقرير",
+  "bodyBookLikes": "الإعجاب",
+  "bodyUserManActions": "هل تريد ازالة ${user} من وكلتك",
+  "@bodyUserManActions": {
+    "placeholders": {
+      "user": {
+        "type": "String",
+        "example": "سلطان"
+      }
+    }
+  },
+
+  "bodyWeekWinner" : "الفائز لهذا الأسبوع هو {winUser}، يرجى المحاولة مرة أخرى الأسبوع المقبل",
+  "@bodyWeekWinner": {
+    "description": "رسالة عندما يفوز المستخدم بأسبوع",
+    "placeholders": {
+      "winUser": {
+        "type": "String",
+        "example": "سلطان"
+      }
+    }
+  },
+
+  "bodyRoleActions": "هل ذهبت لترقية {role} إلى {newRole} هذا المستخدم {user}",
+  "@bodyRoleActions": {
+    "description": "رسالة عند تغيير الدور",
+    "placeholders": {
+      "role": {
+        "النوع": "String",
+        "مثال": "المستخدم"
+      },
+      "newRole": {
+        "type": "String",
+        "example": "المستخدم"
+      },
+      "user": {
+        "type": "String",
+        "example": "سلطان"
+      }
+    }
+  },
+
+  "bodyEmptyValid": "${currentField} المجال الحالي لايرجي ان يكون فارقا",
+  "@bodyEmptyValid": {
+    "description": "رسالة عندما يترك المستخدم حقلًا فارغًا",
+    "placeholders": {
+      "currentField": {
+        "type": "String",
+        "example": "البريد الإلكتروني"
+      }
+    }
+  },
+
+  "bodySorryGift": "عذرًا، لقد حصلت على {currentNumber}، حاول مرة أخرى في الأسبوع المقبل",
+  "@bodySorryGift": {
+    "description": "رسالة عندما يحصل المستخدم على رقم معين",
+    "placeholders": {
+      "currentNumber": {
+        "type": "String",
+        "example": "5"
+      }
+    }
+  },
+  "bodyAlreadyGot": "لقد حصلت بالفعل على {lucky} هذا الأسبوع، يرجى الانتظار حتى يوم الجمعة المقبل",
+  "@bodyAlreadyGot": {
+    "description": "رسالة عندما يكون المستخدم قد حصل بالفعل على رقم",
+    "placeholders": {
+      "lucky": {
+        "type": "String",
+        "example": "7"
+      }
+    }
+  }
+
+}
