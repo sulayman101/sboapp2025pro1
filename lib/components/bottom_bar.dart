@@ -2,11 +2,13 @@ import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.da
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-Widget buttomBarWidget(
-    {required Color backgroundColor,
-    required onTap,
-    required int bottomNavIndex}) {
-  final iconList = <IconData>[Icons.home, CupertinoIcons.book_fill];
+Widget bottomBarWidget({
+  required Color backgroundColor,
+  required void Function(int) onTap,
+  required int bottomNavIndex,
+}) {
+  final List<IconData> iconList = [Icons.home, CupertinoIcons.book_fill];
+
   return AnimatedBottomNavigationBar(
     backgroundColor: backgroundColor,
     activeColor: Colors.white,

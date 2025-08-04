@@ -186,7 +186,7 @@
   "bodyBookSave": "حفظ",
   "bodyBooBooPrInfo": "معلومات سعر الكتاب",
   "bodyShareAppLink": "مرحبا بك في تطبيق SBO يمكنك ان تحصل احدث الكتب , اقرأ اكثر وتعلم اكثر، تحقق به, وانزله",
-  
+
 
   "bodyHintBook": "أدخل اسم الكتاب",
   "bodyHintBookAuthor": "أدخل مؤلف الكتاب",
@@ -320,6 +320,7 @@
   "bodyPayWithGooglePlay": "الدفع باستخدام Google Play",
   "bodyPayWithLocale": "الدفع باستخدام الدفع المحلي",
   "bodyRemoveAd": "إزالة الإعلان",
+  "bodyLoginRequired": "مطلوب تسجيل الدخول",
 
   "bodyPurchase": "شراء",
   "bodyMostPp": "الأكثر شعبية",
@@ -356,8 +357,8 @@
     "description": "رسالة عند تغيير الدور",
     "placeholders": {
       "role": {
-        "النوع": "String",
-        "مثال": "المستخدم"
+        "type": "String",
+        "example": "المستخدم"
       },
       "newRole": {
         "type": "String",

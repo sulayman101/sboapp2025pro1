@@ -1,8 +1,0 @@
-{
-  "ar": [
-    "bodyBookPrice",
-    "bodyLblSelectPro",
-    "bodyLblDescr",
-    "bodyHintDescribe"
-  ]
-}

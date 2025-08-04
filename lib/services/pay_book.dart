@@ -10,205 +10,143 @@ class PayBook extends StatefulWidget {
   final String bookTitle;
   final String bookId;
   final int bookPrice;
-  const PayBook(
-      {super.key,
-      required this.bookTitle,
-      required this.bookId,
-      required this.bookPrice});
+
+  const PayBook({
+    super.key,
+    required this.bookTitle,
+    required this.bookId,
+    required this.bookPrice,
+  });
 
   @override
   State<PayBook> createState() => _PayBookState();
 }
 
 class _PayBookState extends State<PayBook> {
-  // ignore: unused_field
-  final _phone = TextEditingController();
-  int isProcessing = 0;
-  String? selected;
-
-  List<Map<String, String>> ussIdCode = [
+  int _processStep = 0;
+  String? _selectedTelecom;
+  String _accountNumber = '';
+  final List<Map<String, String>> _telecomOptions = [
     {'Golis': '883'},
     {'Hormuud': '779'},
     {'Telesom': '880'},
   ];
 
-  String acc = '';
-  void _getPrice() {
-    DatabaseReference dbRef = FirebaseDatabase.instance.ref();
-    dbRef.child("SBO/Fees").onValue.listen((event) {
-      final fees = event.snapshot.value as Map;
-      acc = fees['acc'].toString();
-      setState(() {});
-    });
-  }
-
   @override
   void initState() {
     super.initState();
-    _getPrice();
+    _fetchAccountNumber();
+  }
+
+  Future<void> _fetchAccountNumber() async {
+    final dbRef = FirebaseDatabase.instance.ref();
+    final snapshot = await dbRef.child("SBO/Fees").get();
+    if (snapshot.value != null) {
+      final fees = snapshot.value as Map;
+      setState(() {
+        _accountNumber = fees['acc'].toString();
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return ScaffoldWidget(
-      appBar: AppBar(
-        title: const Text("pay Book"),
-      ),
+      appBar: AppBar(title: const Text("Pay Book")),
       body: Column(
         children: [
-          titleText(text: "Book Price Info", fontSize: 20),
-          customText(text: "* this Works only for Somalia", color: Colors.red),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Material(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-                borderRadius: const BorderRadius.all(Radius.circular(12)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: Card(
-                        elevation: 3,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                      child: bodyText(
-                                          text: "Name: ${widget.bookTitle}")),
-                                  GestureDetector(
-                                      onTap: () => copyInfo(widget.bookTitle),
-                                      child: Text(
-                                        "Copy",
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary),
-                                      ))
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                      child: bodyText(
-                                          text: "Book Id: ${widget.bookId}")),
-                                  GestureDetector(
-                                    onTap: () => copyInfo(widget.bookId),
-                                    child: Text("Copy",
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary)),
-                                  )
-                                ],
-                              ),
-                              Text("Price: ${widget.bookPrice}"),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (isProcessing == 0)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: materialButton(
-                            onPressed: () => setState(() => isProcessing = 1),
-                            text: "Start Process"),
-                      ),
-                    if (isProcessing == 1)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: materialButton(
-                            onPressed: () {
-                              setState(() => isProcessing = 0);
-                            },
-                            text: "Cancel"),
-                      ),
-                    if (isProcessing == 2) const Text("Contact Us"),
-                    if (isProcessing == 2)
-                      SizedBox(
-                        width: double.infinity,
-                        child: TextButton(
-                            onPressed: () {},
-                            child: ListTile(
-                              onTap: () => openWhatsApp(),
-                              leading: const Icon(Icons.quick_contacts_mail),
-                              title: const Text(
-                                "whatsApp",
-                                style: TextStyle(color: Colors.blue),
-                              ),
-                              subtitle: const Text("send Us Your"),
-                              trailing: IconButton(
-                                  onPressed: () =>
-                                      setState(() => isProcessing = 1),
-                                  icon: const Icon(Icons.undo)),
-                            )),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.02,
-          ),
-          isProcessing == 1 ? Expanded(child: _processing()) : Container(),
+          _buildBookInfo(),
+          const SizedBox(height: 16),
+          if (_processStep == 0) _buildStartProcessButton(),
+          if (_processStep == 1) _buildTelecomSelection(),
+          if (_processStep == 2) _buildContactSupport(),
         ],
       ),
     );
   }
 
-  Widget _processing() {
+  Widget _buildBookInfo() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: SingleChildScrollView(
+      child: Material(
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: Theme.of(context).colorScheme.outline),
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildInfoRow("Name", widget.bookTitle),
+              _buildInfoRow("Book ID", widget.bookId),
+              Text("Price: ${widget.bookPrice}"),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      children: [
+        Expanded(child: bodyText(text: "$label: $value")),
+        GestureDetector(
+          onTap: () => _copyToClipboard(value),
+          child: Text(
+            "Copy",
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStartProcessButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: materialButton(
+        onPressed: () => setState(() => _processStep = 1),
+        text: "Start Process",
+      ),
+    );
+  }
+
+  Widget _buildTelecomSelection() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            DropdownButtonFormField(
-              value: selected,
+            DropdownButtonFormField<String>(
+              value: _selectedTelecom,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 labelText: "Telecom Name",
                 contentPadding: const EdgeInsets.symmetric(
-                    vertical: 20.0, horizontal: 20.0),
+                  vertical: 20.0,
+                  horizontal: 20.0,
+                ),
               ),
-              hint: const Text("Select Telecome Name"),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  setState(() => selected = newValue);
-                }
-              },
-              items: ussIdCode
-                  .map<DropdownMenuItem<String>>((Map<String, String> entry) {
-                String key = entry.keys.first;
-                String value = entry.values.first;
+              hint: const Text("Select Telecom Name"),
+              onChanged: (value) => setState(() => _selectedTelecom = value),
+              items: _telecomOptions.map((entry) {
+                final key = entry.keys.first;
+                final value = entry.values.first;
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(key),
                 );
               }).toList(),
             ),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-            //MyTextFromField(labelText: "Phone Number", hintText: "Enter your phone number", textEditingController: _phone),
-            //SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: selected == null ? null : sendMoney,
-                child: const Text("Next"),
-              ),
+            const SizedBox(height: 16),
+            materialButton(
+              onPressed: _selectedTelecom == null ? null : _sendPayment,
+              text: "Next",
             ),
           ],
         ),
@@ -216,28 +154,45 @@ class _PayBookState extends State<PayBook> {
     );
   }
 
-  Future<void> sendMoney() async {
-    String phone = "*$selected*$acc*${widget.bookPrice}#";
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phone,
+  Widget _buildContactSupport() {
+    return Column(
+      children: [
+        const Text("Contact Us"),
+        ListTile(
+          onTap: _openWhatsApp,
+          leading: const Icon(Icons.quick_contacts_mail),
+          title: const Text("WhatsApp", style: TextStyle(color: Colors.blue)),
+          subtitle: const Text("Send us your payment details"),
+          trailing: IconButton(
+            onPressed: () => setState(() => _processStep = 1),
+            icon: const Icon(Icons.undo),
+          ),
+        ),
+      ],
     );
-    await launchUrl(launchUri);
-    setState(() => isProcessing = 2);
   }
 
-  Future<void> openWhatsApp() async {
-    String text =
-        "I have bought book: ${widget.bookTitle} ID: ${widget.bookId} please confirm and check!";
-    final info = Uri.encodeComponent(text);
-    String link = "https://wa.me/252702032244?text=$info";
-    final Uri url = Uri.parse(link);
+  Future<void> _sendPayment() async {
+    final ussdCode = "*$_selectedTelecom*$_accountNumber*${widget.bookPrice}#";
+    final Uri launchUri = Uri(scheme: 'tel', path: ussdCode);
+    await launchUrl(launchUri);
+    setState(() => _processStep = 2);
+  }
+
+  Future<void> _openWhatsApp() async {
+    final message =
+        "I have bought the book: ${widget.bookTitle} (ID: ${widget.bookId}). Please confirm and check!";
+    final encodedMessage = Uri.encodeComponent(message);
+    final url = Uri.parse("https://wa.me/252702032244?text=$encodedMessage");
     if (!await launchUrl(url)) {
       throw Exception('Could not launch $url');
     }
   }
 
-  void copyInfo(textToCopy) {
-    Clipboard.setData(ClipboardData(text: textToCopy));
+  void _copyToClipboard(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("$text copied to clipboard")),
+    );
   }
 }

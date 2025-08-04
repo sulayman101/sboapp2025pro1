@@ -1,30 +1,35 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 class ConnectivityProvider with ChangeNotifier {
-  //ConnectivityResult _connectionStatus = ConnectivityResult.mobile;
-  List<ConnectivityResult> _connectionStatus = [];
   final Connectivity _connectivity = Connectivity();
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+
   ConnectivityProvider() {
-    _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-    _checkConnectivity();
+    _initializeConnectivity();
   }
 
-  List<ConnectivityResult> get connectionStatus => _connectionStatus;
+  ConnectivityResult get connectionStatus => _connectionStatus;
 
-  Future<void> _checkConnectivity() async {
+  Future<void> _initializeConnectivity() async {
     try {
-      final result = await _connectivity.checkConnectivity();
-      log(result.toString());
-      _updateConnectionStatus(result);
+      var connectivityResults = await _connectivity.checkConnectivity();
+      _connectionStatus = connectivityResults.isNotEmpty
+          ? connectivityResults.first
+          : ConnectivityResult.none;
+      _connectivity.onConnectivityChanged.listen((results) {
+        if (results.isNotEmpty) {
+          _updateConnectionStatus(results.first);
+        }
+      });
+      notifyListeners();
     } catch (e) {
-      log(e.toString());
+      log("Error initializing connectivity: $e");
     }
   }
 
-  void _updateConnectionStatus(List<ConnectivityResult> result) {
+  void _updateConnectionStatus(ConnectivityResult result) {
     _connectionStatus = result;
     notifyListeners();
   }

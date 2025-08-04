@@ -16,85 +16,95 @@ class SupportUsers extends StatefulWidget {
 }
 
 class _SupportUsersState extends State<SupportUsers> {
-  final _body = TextEditingController();
-  String? _selected;
+  final _bodyController = TextEditingController();
+  String? _selectedIssue;
+
   static const menuItems = [
     'Help',
     'Book issue',
-    'page issue',
-    'problem issue',
+    'Page issue',
+    'Problem issue',
     'Report Uploader',
   ];
-  // ignore: unused_field
-  final List<DropdownMenuItem<String>> _dropDownMenuItems = menuItems
-      .map((String value) => DropdownMenuItem(value: value, child: Text(value)))
-      .toList();
 
   @override
   Widget build(BuildContext context) {
     final providerLocale =
         Provider.of<AppLocalizationsNotifier>(context, listen: true)
             .localizations;
+
     return ScaffoldWidget(
-        appBar: AppBar(
-          title: Text(providerLocale.appBarSupport),
-        ),
-        body: SingleChildScrollView(
+      appBar: AppBar(
+        title: Text(providerLocale.appBarSupport),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: DropdownButtonFormField<String>(
-                  value: _selected,
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      setState(() => _selected = newValue);
-                    }
-                  },
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    labelText: providerLocale.bodyLblSelectProblemIssue,
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 20.0, horizontal: 20.0),
-                  ),
-                  items:
-                      menuItems.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ),
-              MyTextFromField(
-                labelText: providerLocale.bodyLblDescribe,
-                hintText: providerLocale.bodyHintDescribe,
-                textEditingController: _body,
-                isReadOnly: _selected == null ? true : false,
-                maxLines: 5,
-              ),
+              _buildDropdown(providerLocale),
+              _buildDescriptionField(providerLocale),
               bodyText(text: providerLocale.bodyWeSupportLanguages),
-              materialButton(
-                  onPressed: _selected == null
-                      ? null
-                      : () {
-                          final uid = FirebaseAuth.instance.currentUser!.uid;
-                          final email =
-                              FirebaseAuth.instance.currentUser!.email!;
-                          final body =
-                              "${providerLocale.bodyUserReportNote + providerLocale.bodyUserID}: $uid \n\n ${providerLocale.bodyLblEmail}: $email \n\n ${_body.text}";
-                          ReportFunction().sendReportEmail(
-                            //toEmail: "sboapp1@gmail.com",
-                            toEmail: "contactus@sboapp.so",
-                            subject: _selected!,
-                            body: body,
-                          );
-                        },
-                  text: providerLocale.bodySend),
+              _buildSendButton(providerLocale),
             ],
           ),
-        ));
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdown(dynamic providerLocale) {
+    return DropdownButtonFormField<String>(
+      value: _selectedIssue,
+      onChanged: (String? newValue) {
+        setState(() => _selectedIssue = newValue);
+      },
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        labelText: providerLocale.bodyLblSelectProblemIssue,
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 20.0,
+          horizontal: 20.0,
+        ),
+      ),
+      items: menuItems.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildDescriptionField(dynamic providerLocale) {
+    return MyTextFromField(
+      labelText: providerLocale.bodyLblDescribe,
+      hintText: providerLocale.bodyHintDescribe,
+      textEditingController: _bodyController,
+      isReadOnly: _selectedIssue == null,
+      maxLines: 5,
+    );
+  }
+
+  Widget _buildSendButton(dynamic providerLocale) {
+    return materialButton(
+      onPressed: _selectedIssue == null
+          ? null
+          : () {
+              final uid = FirebaseAuth.instance.currentUser!.uid;
+              final email = FirebaseAuth.instance.currentUser!.email!;
+              final body =
+                  "${providerLocale.bodyUserReportNote}${providerLocale.bodyUserID}: $uid\n\n${providerLocale.bodyLblEmail}: $email\n\n${_bodyController.text}";
+
+              ReportFunction().sendReportEmail(
+                toEmail: "contactus@sboapp.so",
+                subject: _selectedIssue!,
+                body: body,
+              );
+            },
+      text: providerLocale.bodySend,
+    );
   }
 }

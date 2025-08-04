@@ -10,8 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class OnboardingView extends StatefulWidget {
-  // ignore: prefer_typing_uninitialized_variables
-  final providerLocale;
+  final dynamic providerLocale;
+
   const OnboardingView({super.key, this.providerLocale});
 
   @override
@@ -19,32 +19,34 @@ class OnboardingView extends StatefulWidget {
 }
 
 class _OnboardingViewState extends State<OnboardingView> {
-  // ignore: prefer_typing_uninitialized_variables
-  var controller;
-  final pageController = PageController();
-
-  bool isLastPage = false;
-  bool singInOrUp = true;
-  bool isAuth = false;
-  Set<Locale>? selectedLanguage;
-
-  void onBoardingStatus(value) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool("isComp", value);
-  }
-
-  void onBoardingGet() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {});
-    if (prefs.getBool("isComp") != null) {
-      isAuth = prefs.getBool("isComp")!;
-    }
-  }
+  final PageController _pageController = PageController();
+  bool _isLastPage = false;
+  bool _isAuth = false;
+  bool _isSignIn = true;
+  Locale? _selectedLanguage;
 
   @override
   void initState() {
     super.initState();
-    onBoardingGet();
+    _loadOnboardingStatus();
+  }
+
+  Future<void> _loadOnboardingStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isAuth = prefs.getBool("isComp") ?? false;
+    });
+  }
+
+  Future<void> _saveOnboardingStatus(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool("isComp", value);
+  }
+
+  void _toggleAuthMode() {
+    setState(() {
+      _isSignIn = !_isSignIn;
+    });
   }
 
   @override
@@ -52,182 +54,175 @@ class _OnboardingViewState extends State<OnboardingView> {
     final providerLocale =
         Provider.of<AppLocalizationsNotifier>(context, listen: true)
             .localizations;
-    controller = providerLocale.language == "العربية"
+    final controller = providerLocale.language == "العربية"
         ? OnboardingItemsAr()
         : OnboardingItemsEn();
+
     return Scaffold(
-      appBar: !isAuth
-          ? null
-          : AppBar(
+      appBar: _isAuth
+          ? AppBar(
               title: appBarText(
-                  text: singInOrUp
-                      ? providerLocale.bodySingIn
-                      : providerLocale.bodySingUp),
-            ),
-      body: isAuth
-          ? _authPages()
-          : SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DropdownButton<Locale>(
-                      value: selectedLanguage?.first ??
-                          Localizations.localeOf(context),
-                      items: const [
-                        DropdownMenuItem(
-                          value: Locale("en"),
-                          child: Text('English'),
-                        ),
-                        DropdownMenuItem(
-                          value: Locale("ar"),
-                          child: Text('عربي'),
-                        ),
-                      ],
-                      onChanged: (Locale? newLocale) {
-                        if (newLocale != null) {
-                          setState(() {
-                            selectedLanguage = {newLocale};
-                          });
-                          Provider.of<AppLocalizationsNotifier>(context,
-                                  listen: false)
-                              .changeLocale(newLocale);
-                        }
-                      },
-                    ),
-                    Expanded(
-                      child: PageView.builder(
-                          onPageChanged: (index) => setState(() => isLastPage =
-                              controller.items.length - 1 == index),
-                          itemCount: controller.items.length,
-                          controller: pageController,
-                          itemBuilder: (context, index) {
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ClipRRect(
-                                    borderRadius: BorderRadius.circular(30),
-                                    child: Image.asset(
-                                        controller.items[index].image)),
-                                const SizedBox(height: 15),
-                                Text(
-                                  controller.items[index].title,
-                                  style: const TextStyle(
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 15),
-                                AnimatedTextKit(
-                                  animatedTexts: [
-                                    TypewriterAnimatedText(
-                                      controller.items[index].descriptions,
-                                      textStyle: const TextStyle(
-                                          color: Colors.grey, fontSize: 17),
-                                      textAlign: TextAlign.center,
-                                      //speed: const Duration(milliseconds: 5),
-                                    ),
-                                  ],
-                                  displayFullTextOnTap: true,
-                                  totalRepeatCount: 1,
-                                ),
-                              ],
-                            );
-                          }),
-                    ),
-                    Container(
-                      height: MediaQuery.of(context).size.height * 0.07,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
-                      child: isLastPage
-                          ? getStarted()
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                //Skip Button
-                                TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        onBoardingStatus(!isAuth);
-                                        isAuth = !isAuth;
-                                      });
-                                    },
-                                    child: buttonText(
-                                        text: providerLocale.bodySkip)),
-
-                                //Indicator
-                                SmoothPageIndicator(
-                                  controller: pageController,
-                                  count: controller.items.length,
-                                  onDotClicked: (index) =>
-                                      pageController.animateToPage(index,
-                                          duration:
-                                              const Duration(milliseconds: 600),
-                                          curve: Curves.easeIn),
-                                  effect: const WormEffect(
-                                    dotHeight: 12,
-                                    dotWidth: 12,
-                                    activeDotColor: Colors.blue,
-                                  ),
-                                ),
-
-                                //Next Button
-                                TextButton(
-                                    onPressed: () => pageController.nextPage(
-                                        duration:
-                                            const Duration(milliseconds: 600),
-                                        curve: Curves.easeIn),
-                                    child: buttonText(
-                                        text: providerLocale.bodyBookNext)),
-                              ],
-                            ),
-                    ),
-                  ],
-                ),
+                text: _isSignIn
+                    ? providerLocale.bodySingIn
+                    : providerLocale.bodySingUp,
               ),
-            ),
+            )
+          : null,
+      body: _isAuth ? _buildAuthPages() : _buildOnboardingPages(controller),
     );
   }
 
-  //Now the problem is when press get started button
-  // after re run the app we see again the onboarding screen
-  // so lets do one time onboarding
+  Widget _buildOnboardingPages(dynamic controller) {
+    final providerLocale =
+        Provider.of<AppLocalizationsNotifier>(context, listen: true)
+            .localizations;
 
-  //Get started button
-
-  Widget getStarted() {
-    final provider =
-        Provider.of<AppLocalizationsNotifier>(context, listen: true);
-    return Container(
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8), color: Colors.blue),
-      width: MediaQuery.of(context).size.width * 0.9,
-      height: MediaQuery.of(context).size.height * 0.5,
-      child: TextButton(
-        onPressed: () async {
-          //final SharedPreferences prefs = await SharedPreferences.getInstance();
-          setState(() {});
-          onBoardingStatus(!isAuth);
-          isAuth = !isAuth;
-        },
-        child: customText(
-            text: provider.localizations.bodyGetStart, color: Colors.white),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildLanguageDropdown(),
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (index) => setState(() {
+                  _isLastPage = index == controller.items.length - 1;
+                }),
+                itemCount: controller.items.length,
+                itemBuilder: (context, index) {
+                  final item = controller.items[index];
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Image.asset(item.image),
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
+                        item.title,
+                        style: const TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      AnimatedTextKit(
+                        animatedTexts: [
+                          TypewriterAnimatedText(
+                            item.descriptions,
+                            textStyle: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 17,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                        displayFullTextOnTap: true,
+                        totalRepeatCount: 1,
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            _buildBottomNavigation(providerLocale, controller),
+          ],
+        ),
       ),
     );
   }
 
-  void changeAuth() {
-    setState(() {});
-    singInOrUp = !singInOrUp;
+  Widget _buildLanguageDropdown() {
+    return DropdownButton<Locale>(
+      value: _selectedLanguage ?? Localizations.localeOf(context),
+      items: const [
+        DropdownMenuItem(value: Locale("en"), child: Text('English')),
+        DropdownMenuItem(value: Locale("ar"), child: Text('عربي')),
+      ],
+      onChanged: (Locale? newLocale) {
+        if (newLocale != null) {
+          setState(() {
+            _selectedLanguage = newLocale;
+          });
+          Provider.of<AppLocalizationsNotifier>(context, listen: false)
+              .changeLocale(newLocale);
+        }
+      },
+    );
   }
 
-  Widget _authPages() {
-    return singInOrUp
-        ? SignIn(
-            onSignUp: changeAuth,
-          )
-        : SignUp(
-            onSignIn: changeAuth,
-          );
+  Widget _buildBottomNavigation(dynamic providerLocale, dynamic controller) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.07,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      child: _isLastPage
+          ? _buildGetStartedButton(providerLocale)
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _saveOnboardingStatus(true);
+                      _isAuth = true;
+                    });
+                  },
+                  child: buttonText(text: providerLocale.bodySkip),
+                ),
+                SmoothPageIndicator(
+                  controller: _pageController,
+                  count: controller.items.length,
+                  onDotClicked: (index) => _pageController.animateToPage(
+                    index,
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.easeIn,
+                  ),
+                  effect: const WormEffect(
+                    dotHeight: 12,
+                    dotWidth: 12,
+                    activeDotColor: Colors.blue,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => _pageController.nextPage(
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.easeIn,
+                  ),
+                  child: buttonText(text: providerLocale.bodyBookNext),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildGetStartedButton(dynamic providerLocale) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.blue,
+      ),
+      width: double.infinity,
+      child: TextButton(
+        onPressed: () {
+          setState(() {
+            _saveOnboardingStatus(true);
+            _isAuth = true;
+          });
+        },
+        child: customText(
+          text: providerLocale.bodyGetStart,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuthPages() {
+    return _isSignIn
+        ? SignIn(onSignUp: _toggleAuthMode)
+        : SignUp(onSignIn: _toggleAuthMode);
   }
 }

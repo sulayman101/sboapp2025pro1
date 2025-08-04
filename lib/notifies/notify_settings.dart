@@ -12,27 +12,26 @@ class NotifySettings extends StatelessWidget {
     final providerLocale =
         Provider.of<AppLocalizationsNotifier>(context, listen: true)
             .localizations;
+
     return ScaffoldWidget(
-        appBar: AppBar(
-          title: Text(providerLocale.appBarNotification),
-        ),
-        body: Column(
-          children: [
-            CardSettings(
-              leading: const Icon(Icons.notification_add),
-              title: Text(providerLocale.bodyAddNotify),
-              onTap: () {
-                Navigator.pushNamed(context, "/addNotify");
-              },
-            ),
-            CardSettings(
-              leading: const Icon(Icons.edit_notifications),
-              title: Text(providerLocale.bodyManageNotify),
-              onTap: () {
-                Navigator.pushNamed(context, "/manNotify");
-              },
-            ),
-          ],
-        ));
+      appBar: AppBar(
+        title: Text(providerLocale.appBarNotification),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(8.0),
+        children: [
+          CardSettings(
+            leading: const Icon(Icons.notification_add),
+            title: Text(providerLocale.bodyAddNotify),
+            onTap: () => Navigator.pushNamed(context, "/addNotify"),
+          ),
+          CardSettings(
+            leading: const Icon(Icons.edit_notifications),
+            title: Text(providerLocale.bodyManageNotify),
+            onTap: () => Navigator.pushNamed(context, "/manNotify"),
+          ),
+        ],
+      ),
+    );
   }
 }

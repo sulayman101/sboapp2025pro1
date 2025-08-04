@@ -1,10 +1,12 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 
-customizedSnackBar(
-    {required String title,
-    required String message,
-    required ContentType contentType}) {
+/// Creates a customized snackbar with a title, message, and content type.
+SnackBar customizedSnackBar({
+  required String title,
+  required String message,
+  required ContentType contentType,
+}) {
   return SnackBar(
     elevation: 0,
     behavior: SnackBarBehavior.floating,

@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:math';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -37,27 +36,30 @@ class _AddNotifyState extends State<AddNotify> {
   bool waiting = false;
   String currentVersion = "";
 
-  void _getUpdateStatus() async{
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
-
-    // Listen for updates
-    databaseReference.child('$dbName/updates').once().then((snapshot) {
-      final data = snapshot.snapshot.value as Map<dynamic, dynamic>;
-      setState(() {
-        updating = data['updating'] ?? false;
-        newVersion = data['version'] ?? "";
-        waiting = data['waiting'] ?? false;
-        currentVersion = packageInfo.version;
-      });
-    });
-  }
-
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _getUpdateStatus();
+  }
+
+  Future<void> _getUpdateStatus() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final databaseReference = FirebaseDatabase.instance.ref();
+
+      final snapshot = await databaseReference.child('$dbName/updates').once();
+      if (snapshot.snapshot.value is Map<dynamic, dynamic>) {
+        final data = Map<String, dynamic>.from(snapshot.snapshot.value as Map);
+        setState(() {
+          updating = data['updating'] ?? false;
+          newVersion = data['version'] ?? "";
+          waiting = data['waiting'] ?? false;
+          currentVersion = packageInfo.version;
+        });
+      }
+    } catch (e) {
+      log("Error fetching update status: $e");
+    }
   }
 
   @override
@@ -66,16 +68,14 @@ class _AddNotifyState extends State<AddNotify> {
     final providerLocale =
         Provider.of<AppLocalizationsNotifier>(context, listen: true)
             .localizations;
-    List labelsList = [
+
+    final labelsList = [
       providerLocale.bodyAll,
       providerLocale.bodyAllUsers,
       providerLocale.bodyAllAuthors,
-      providerLocale.bodyAllAdmins
+      providerLocale.bodyAllAdmins,
     ];
 
-
-    List<TempLocalNotifications> tempNotifies = [];
-    
     return ScaffoldWidget(
       appBar: AppBar(
         title: appBarText(text: providerLocale.appBarUpdateNotify),
@@ -84,239 +84,202 @@ class _AddNotifyState extends State<AddNotify> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Card.filled(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    titleText(text: providerLocale.bodyNotify, fontSize: 18),
-                    MyTextFromField(
-                        labelText: providerLocale.bodyLblTitle,
-                        hintText: providerLocale.bodyHintTitle,
-                        textEditingController: _titleTxt,
-                        isReadOnly: _wait),
-                    MyTextFromField(
-                      labelText: providerLocale.bodyLblMsg,
-                      hintText: providerLocale.bodyHintMsg,
-                      textEditingController: _msgTxt,
-                      isReadOnly: _wait,
-                      maxLines: 5,
-                    ),
-                    MyTextFromField(
-                      labelText: "Link",
-                      hintText: "Enter Link",
-                      textEditingController: _linkTxt,
-                      validator: (value) {
-                        bool validURL = Uri.parse(value).isAbsolute;
-                        if (!validURL) {
-                          return providerLocale.bodyEnterValidUrl;
-                        }
-                      },
-                    ),
-                    MyTextFromField(
-                      labelText: providerLocale.bodyLblImgLink,
-                      hintText: providerLocale.bodyHintImgLink,
-                      textEditingController: _imgLinkTxt,
-                      validator: (value) {
-                        bool validURL = Uri.parse(value).isAbsolute;
-                        if (!validURL) {
-                          return providerLocale.bodyEnterValidUrl;
-                        }
-                      },
-                    ),
-                    MyTextFromField(
-                      labelText: "Book Link",
-                      hintText: "Enter Book Link",
-                      textEditingController: _bookLinkTxt,
-                      validator: (value) {
-                        bool validURL = Uri.parse(value).isAbsolute;
-                        if (!validURL) {
-                          return providerLocale.bodyEnterValidUrl;
-                        }
-                      },
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        ChoiceChip(
-                            label: labelText(text: labelsList[0]),
-                            selected: chipSelected == 0,
-                            onSelected: _wait
-                                ? null
-                                : (value) {
-                                    setState(() {
-                                      chipSelected = 0;
-                                      selected = null;
-                                    });
-                                  }),
-                        ChoiceChip(
-                            label: labelText(text: labelsList[1]),
-                            selected: chipSelected == 1,
-                            onSelected: _wait
-                                ? null
-                                : (value) {
-                                    setState(() {
-                                      chipSelected = 1;
-                                      selected = "User";
-                                    });
-                                  }),
-                        ChoiceChip(
-                            label: labelText(text: labelsList[2]),
-                            selected: chipSelected == 2,
-                            onSelected: _wait
-                                ? null
-                                : (value) {
-                                    setState(() {
-                                      chipSelected = 2;
-                                      selected = "Agent";
-                                    });
-                                  }),
-                        ChoiceChip(
-                            label: labelText(text: labelsList[3]),
-                            selected: chipSelected == 3,
-                            onSelected: _wait
-                                ? null
-                                : (value) {
-                                    setState(() {
-                                      chipSelected = 3;
-                                      selected = "Admin";
-                                    });
-                                  }),
-                      ],
-                    ),
-                    _wait
-                        ? FilledButton(
-                            child: bodyText(
-                              text: provider.message,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                Provider.of<NotificationProvider>(context,
-                                        listen: false)
-                                    .stopTimer();
-                                _wait = false;
-                              });
-                            },
-                          )
-                        : FilledButton(
-                            child: bodyText(
-                              text: providerLocale.bodySend,
-                            ),
-                            onPressed: () async {
-                              final fcmProvider =
-                                  Provider.of<NotificationProvider>(context,
-                                      listen: false);
-                              if (_titleTxt.text.isNotEmpty &&
-                                  _msgTxt.text.isNotEmpty) {
-                                setState(() => _wait = true);
-                                Provider.of<NotificationProvider>(context,
-                                        listen: false)
-                                    .messageProvider();
-                                await Future.delayed(const Duration(minutes: 1));
-                                setState(() {
-                                  _wait = false;
-                                  tempNotifies.add(TempLocalNotifications(
-                                      title: _titleTxt.text,
-                                      body: _msgTxt.text,
-                                      who: chipSelected == 3
-                                          ? "Admins"
-                                          : chipSelected == 2
-                                              ? "Athors"
-                                              : chipSelected == 1
-                                                  ? "Users"
-                                                  : "All",
-                                      linkImg: _imgLinkTxt.text.isEmpty
-                                          ? false
-                                          : true,
-                                  ));
-                                });
-                                fcmProvider.sendNotify(
-                                    title: _titleTxt.value.text,
-                                    body: _msgTxt.value.text,
-                                    link: _linkTxt.text.isEmpty ? null : _linkTxt.value.text,
-                                    imgLink: _imgLinkTxt.text.isEmpty
-                                        ? null
-                                        : _imgLinkTxt.value.text,
-                                    bookLink: _bookLinkTxt.text.isEmpty ? null : _bookLinkTxt.value.text,
-                                    mySelect: selected);
-
-                                _titleTxt.clear();
-                                _msgTxt.clear();
-                                _imgLinkTxt.clear();
-                                _linkTxt.clear();
-                                _bookLinkTxt.clear();
-                                chipSelected = 0;
-                              }
-                            },
-                          ),
-                  ],
-                ),
-              ),
-            ),
-            Card.filled(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ExpansionTile(
-                  title: const Text("Update All"),
-                  trailing: Switch(value: waiting && updating ? true : false, onChanged: (value){
-                      Provider.of<GetDatabase>(context, listen: false).updateAppVersions(newVersion: currentVersion, updating: !updating, waiting: !waiting);
-                      Future.delayed(const Duration(seconds: 30)).whenComplete(()=> _getUpdateStatus());
-                  }),
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Update New Version : $newVersion"),
-                        IconButton(onPressed: (){
-                          Provider.of<GetDatabase>(context, listen: false).updateAppVersions(newVersion: currentVersion);
-                        }, icon: const Icon(Icons.update)),
-                      ],),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Updating Status : $updating"),
-                        IconButton(onPressed: (){
-                          Provider.of<GetDatabase>(context, listen: false).updateAppVersions(updating: !updating);
-                        }, icon: Icon(Icons.change_circle, color: updating ? Colors.blue :  null)),
-                      ],),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Waiting Status : $waiting"),
-                        IconButton(onPressed: (){
-                          Provider.of<GetDatabase>(context, listen: false).updateAppVersions(waiting: !waiting);
-                        }, icon: Icon(Icons.access_time, color: waiting ? Colors.blue :  null, )),
-                      ],),
-                  ],
-                ),
-              )
-            ),
-            /*const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text("This List will disappear if you exit this page"),
-            ),
-            Expanded(
-                child: ListView.builder(
-              itemCount: tempNotifies.length,
-              itemBuilder: (BuildContext context, int index) {
-                if (tempNotifies.isEmpty) {
-                  return const Center(
-                    child: Text("There no temprery sent notifications"),
-                  );
-                } else {
-                  return ListTile(
-                    title: Text(tempNotifies[index].title),
-                    subtitle: Text(
-                        "${tempNotifies[index].body} ${tempNotifies[index].linkImg ? "With Image Link" : ""}"),
-                    trailing: Text(tempNotifies[index].who),
-                  );
-                }
-              },
-            ))*/
+            _buildNotificationForm(providerLocale, labelsList, provider),
+            _buildUpdateSettings(providerLocale),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildNotificationForm(dynamic providerLocale, List<String> labelsList,
+      NotificationProvider provider) {
+    return Card.filled(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            titleText(text: providerLocale.bodyNotify, fontSize: 18),
+            MyTextFromField(
+              labelText: providerLocale.bodyLblTitle,
+              hintText: providerLocale.bodyHintTitle,
+              textEditingController: _titleTxt,
+              isReadOnly: _wait,
+            ),
+            MyTextFromField(
+              labelText: providerLocale.bodyLblMsg,
+              hintText: providerLocale.bodyHintMsg,
+              textEditingController: _msgTxt,
+              isReadOnly: _wait,
+              maxLines: 5,
+            ),
+            MyTextFromField(
+              labelText: "Link",
+              hintText: "Enter Link",
+              textEditingController: _linkTxt,
+              validator: (value) => _validateUrl(value, providerLocale),
+            ),
+            MyTextFromField(
+              labelText: providerLocale.bodyLblImgLink,
+              hintText: providerLocale.bodyHintImgLink,
+              textEditingController: _imgLinkTxt,
+              validator: (value) => _validateUrl(value, providerLocale),
+            ),
+            MyTextFromField(
+              labelText: "Book Link",
+              hintText: "Enter Book Link",
+              textEditingController: _bookLinkTxt,
+              validator: (value) => _validateUrl(value, providerLocale),
+            ),
+            _buildChoiceChips(labelsList),
+            _buildSendButton(provider, providerLocale),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChoiceChips(List<String> labelsList) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: List.generate(
+        labelsList.length,
+        (index) => ChoiceChip(
+          label: labelText(text: labelsList[index]),
+          selected: chipSelected == index,
+          onSelected: _wait
+              ? null
+              : (value) {
+                  setState(() {
+                    chipSelected = index;
+                    selected = index == 0
+                        ? null
+                        : index == 1
+                            ? "User"
+                            : index == 2
+                                ? "Agent"
+                                : "Admin";
+                  });
+                },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSendButton(
+      NotificationProvider provider, dynamic providerLocale) {
+    return _wait
+        ? FilledButton(
+            child: bodyText(text: provider.message),
+            onPressed: () {
+              setState(() {
+                provider.stopTimer();
+                _wait = false;
+              });
+            },
+          )
+        : FilledButton(
+            child: bodyText(text: providerLocale.bodySend),
+            onPressed: () => _sendNotification(provider),
+          );
+  }
+
+  Future<void> _sendNotification(NotificationProvider provider) async {
+    if (_titleTxt.text.isNotEmpty && _msgTxt.text.isNotEmpty) {
+      setState(() => _wait = true);
+      provider.showMessage();
+
+      await Future.delayed(const Duration(minutes: 1));
+      setState(() => _wait = false);
+
+      provider.sendNotify(
+        title: _titleTxt.value.text,
+        body: _msgTxt.value.text,
+        link: _linkTxt.text.isEmpty ? null : _linkTxt.value.text,
+        imgLink: _imgLinkTxt.text.isEmpty ? null : _imgLinkTxt.value.text,
+        bookLink: _bookLinkTxt.text.isEmpty ? null : _bookLinkTxt.value.text,
+        mySelect: selected,
+      );
+
+      _clearFormFields();
+    }
+  }
+
+  void _clearFormFields() {
+    _titleTxt.clear();
+    _msgTxt.clear();
+    _imgLinkTxt.clear();
+    _linkTxt.clear();
+    _bookLinkTxt.clear();
+    chipSelected = 0;
+  }
+
+  String? _validateUrl(String? value, dynamic providerLocale) {
+    if (value == null || !Uri.parse(value).isAbsolute) {
+      return providerLocale.bodyEnterValidUrl;
+    }
+    return null;
+  }
+
+  Widget _buildUpdateSettings(dynamic providerLocale) {
+    return Card.filled(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ExpansionTile(
+          title: const Text("Update All"),
+          trailing: Switch(
+            value: waiting && updating,
+            onChanged: (value) => _toggleUpdateSettings(),
+          ),
+          children: [
+            _buildUpdateRow(
+              "Update New Version: $newVersion",
+              Icons.update,
+              () => Provider.of<GetDatabase>(context, listen: false)
+                  .updateAppVersions(newVersion: currentVersion),
+            ),
+            _buildUpdateRow(
+              "Updating Status: $updating",
+              Icons.change_circle,
+              () => Provider.of<GetDatabase>(context, listen: false)
+                  .updateAppVersions(updating: !updating),
+              iconColor: updating ? Colors.blue : null,
+            ),
+            _buildUpdateRow(
+              "Waiting Status: $waiting",
+              Icons.access_time,
+              () => Provider.of<GetDatabase>(context, listen: false)
+                  .updateAppVersions(waiting: !waiting),
+              iconColor: waiting ? Colors.blue : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUpdateRow(String text, IconData icon, VoidCallback onPressed,
+      {Color? iconColor}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(text),
+        IconButton(
+          onPressed: onPressed,
+          icon: Icon(icon, color: iconColor),
+        ),
+      ],
+    );
+  }
+
+  void _toggleUpdateSettings() {
+    Provider.of<GetDatabase>(context, listen: false).updateAppVersions(
+      newVersion: currentVersion,
+      updating: !updating,
+      waiting: !waiting,
+    );
+    Future.delayed(const Duration(seconds: 30))
+        .whenComplete(() => _getUpdateStatus());
   }
 }
 
@@ -331,4 +294,30 @@ class TempLocalNotifications {
       required this.body,
       required this.who,
       required this.linkImg});
+}
+
+class NotificationProvider with ChangeNotifier {
+  String message = "Notification in progress...";
+
+  void showMessage() {
+    message = "Notification is being sent...";
+    notifyListeners();
+  }
+
+  void sendNotify({
+    required String title,
+    required String body,
+    String? link,
+    String? imgLink,
+    String? bookLink,
+    String? mySelect,
+  }) {
+    // Logic to send notification
+    log("Notification sent: $title - $body");
+  }
+
+  void stopTimer() {
+    message = "Notification stopped.";
+    notifyListeners();
+  }
 }

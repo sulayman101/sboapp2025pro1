@@ -6,40 +6,41 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class NativeAdsState extends ChangeNotifier {
   InterstitialAd? _interstitialAd;
-  int _numInterstitialLoadAttempts = 5;
-  int adClickCount = 0;
-  int maxClicks = 3;
-  bool canClick = true;
+  int _numInterstitialLoadAttempts = 0;
+  final int _maxLoadAttempts = 3;
+  int _adClickCount = 0;
+  final int _maxClicks = 3;
+  bool _canClick = true;
 
-  //  replace this test ad unit with your own ad unit.
-  final adUnitId = 'ca-app-pub-5978208654644743/6451649661';
+  final String adUnitId = 'ca-app-pub-5978208654644743/6451649661';
 
   /// Loads an interstitial ad.
   void createInterstitialAd() {
     InterstitialAd.load(
-        adUnitId: adUnitId,
-        request: const AdRequest(),
-        adLoadCallback: InterstitialAdLoadCallback(
-          onAdLoaded: (InterstitialAd ad) {
-            //print('$ad loaded');
-            _interstitialAd = ad;
-            _numInterstitialLoadAttempts = 0;
-            _interstitialAd!.setImmersiveMode(true);
-          },
-          onAdFailedToLoad: (LoadAdError error) {
-            //print('InterstitialAd failed to load: $error.');
-            _numInterstitialLoadAttempts += 1;
-            _interstitialAd = null;
-            if (_numInterstitialLoadAttempts < 3) {
-              createInterstitialAd();
-            }
-          },
-        ));
+      adUnitId: adUnitId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          _interstitialAd = ad;
+          _numInterstitialLoadAttempts = 0;
+          _interstitialAd!.setImmersiveMode(true);
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          log('InterstitialAd failed to load: $error');
+          _numInterstitialLoadAttempts++;
+          _interstitialAd = null;
+          if (_numInterstitialLoadAttempts < _maxLoadAttempts) {
+            createInterstitialAd();
+          }
+        },
+      ),
+    );
   }
 
-  void showInterstitialAd({bool? reward}) async {
+  /// Displays the interstitial ad if available.
+  void showInterstitialAd() async {
     if (_interstitialAd == null) {
-      //print('Warning: attempt to show interstitial before loaded.');
+      log('Attempt to show interstitial before loaded.');
       return;
     }
 
@@ -47,43 +48,43 @@ class NativeAdsState extends ChangeNotifier {
 
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (InterstitialAd ad) =>
-          log('ad onAdShowedFullScreenContent.'),
+          log('Ad showed full screen content.'),
       onAdDismissedFullScreenContent: (InterstitialAd ad) {
-        log('$ad onAdDismissedFullScreenContent.');
+        log('Ad dismissed full screen content.');
         ad.dispose();
         createInterstitialAd();
       },
-      onAdClicked: (ad) {
-        if (!canClick) {
-          log('Clicking is disabled for 1 minute.');
-          return; // Ignore clicks if disabled
-        }
-
-        if (adClickCount < maxClicks) {
-          adClickCount++; // Increment click count on each click
-          log('Ad clicked $adClickCount times');
-        }
-
-        if (adClickCount >= maxClicks) {
-          // Disable further clicks and start the timer
-          log('Max ad clicks reached. Disabling clicks for 1 minute.');
-          canClick = false; // Disable further clicks
-          Timer(const Duration(minutes: 1), () {
-            // Reset the click count and re-enable clicking after 1 minute
-            adClickCount = 0;
-            canClick = true;
-            notifyListeners();
-            log('Clicking is now re-enabled.');
-          });
-        }
-      },
+      onAdClicked: (ad) => _handleAdClick(),
       onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
-        log('$ad onAdFailedToShowFullScreenContent: $error');
+        log('Ad failed to show full screen content: $error');
         ad.dispose();
         createInterstitialAd();
       },
     );
+
     _interstitialAd!.show();
     _interstitialAd = null;
+  }
+
+  /// Handles ad click logic, including limiting clicks and resetting after a cooldown.
+  void _handleAdClick() {
+    if (!_canClick) {
+      log('Clicking is disabled for 1 minute.');
+      return;
+    }
+
+    _adClickCount++;
+    log('Ad clicked $_adClickCount times.');
+
+    if (_adClickCount >= _maxClicks) {
+      log('Max ad clicks reached. Disabling clicks for 1 minute.');
+      _canClick = false;
+      Timer(const Duration(minutes: 1), () {
+        _adClickCount = 0;
+        _canClick = true;
+        notifyListeners();
+        log('Clicking is now re-enabled.');
+      });
+    }
   }
 }

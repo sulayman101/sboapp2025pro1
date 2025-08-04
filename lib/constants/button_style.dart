@@ -15,30 +15,24 @@ Widget materialButton({
     padding: const EdgeInsets.all(8.0),
     child: FilledButton.tonal(
       style: FilledButton.styleFrom(
-        fixedSize: height == null ? null : Size.fromHeight(height),
+        fixedSize: height != null ? Size.fromHeight(height) : null,
         backgroundColor: color,
         elevation: 3,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
       ),
-      /*height: height,
-        elevation: 3,
-        color: color ?? Colors.blue,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),*/
       onPressed: onPressed,
-      child: loading != null && loading == false
+      child: loading == true
           ? CircularProgressIndicator(color: txtColor)
           : Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                icon == null ? const SizedBox() : Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Icon(icon),
-                ),
+                if (icon != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Icon(icon),
+                  ),
                 buttonText(text: text, color: txtColor, fontSize: fontSize),
               ],
             ),

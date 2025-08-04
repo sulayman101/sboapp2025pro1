@@ -1,28 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:sboapp/app_model/book_model.dart';
 
-class DropDownWidget extends StatefulWidget {
-  // ignore: prefer_typing_uninitialized_variables
-  final providerLocale;
+class DropDownWidget extends StatelessWidget {
+  final dynamic providerLocale;
   final String? selectedValue;
   final String? hintText;
-  // ignore: prefer_typing_uninitialized_variables
-  final onChange;
+  final void Function(String?) onChange;
   final List<MyCategories> items;
 
-  const DropDownWidget(
-      {super.key,
-      this.providerLocale,
-      this.selectedValue,
-      required this.items,
-      required this.onChange,
-      this.hintText});
+  const DropDownWidget({
+    super.key,
+    required this.providerLocale,
+    this.selectedValue,
+    required this.items,
+    required this.onChange,
+    this.hintText,
+  });
 
-  @override
-  State<DropDownWidget> createState() => _DropDownWidgetState();
-}
-
-class _DropDownWidgetState extends State<DropDownWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -33,20 +27,18 @@ class _DropDownWidgetState extends State<DropDownWidget> {
         child: DropdownButtonFormField<String>(
           elevation: 3,
           borderRadius: BorderRadius.circular(10),
-          value: widget.selectedValue,
-          hint: Text(
-              widget.hintText ?? widget.providerLocale.bodyAddOrChooseCategory),
-          onChanged: widget.onChange,
+          value: selectedValue,
+          hint: Text(hintText ?? providerLocale.bodyAddOrChooseCategory),
+          onChanged: onChange,
           decoration: InputDecoration(
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
             ),
-            labelText: widget.providerLocale.bodyLblCategory,
+            labelText: providerLocale.bodyLblCategory,
             contentPadding:
                 const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
           ),
-          items:
-              widget.items.map<DropdownMenuItem<String>>((MyCategories value) {
+          items: items.map<DropdownMenuItem<String>>((MyCategories value) {
             return DropdownMenuItem<String>(
               value: value.category,
               child: Text(value.category),

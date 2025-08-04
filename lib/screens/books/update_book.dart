@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:file_previewer/file_previewer.dart';
+//import 'package:file_previewer/file_previewer.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -52,114 +52,41 @@ class __UpdateBookStateState extends State<UpdateBook> {
   final txtCrtBAuth = TextEditingController();
   final txtCrtPrice = TextEditingController();
   final txtNewCtgry = TextEditingController();
+
   bool isFree = false;
+  bool _isTranslated = false;
+  bool _uploading = false;
+  double _uploadImgProgress = 0.0;
+  double _uploadPdfProgress = 0.0;
 
   String? selectedValue;
   String? selectedLang;
-  bool _isTranslated = false;
+  String? bookCover;
+  String? bookLink;
+  String _status = "Public";
+  String? uploadDate;
+  String? upBookId;
 
-  DatabaseReference dbRef = FirebaseDatabase.instance.ref();
+  File? _pdfFile;
+  Widget? previewFile;
+  CroppedFile? _croppedImage;
 
   static const langMenu = <String>['Somali', 'Arabic', 'English'];
-
   final List<DropdownMenuItem<String>> _langDrop = langMenu
-      .map((String value) => DropdownMenuItem(value: value, child: Text(value)))
+      .map((value) => DropdownMenuItem(value: value, child: Text(value)))
       .toList();
 
   @override
   void initState() {
     super.initState();
-    //_getCat();
-    _getPrice();
+    _fetchBookInfo();
   }
 
-  bool _uploading = false;
-  double _uploadImgProgress = 0.0;
-  double _uploadPdfProgress = 0.0;
-  File? _pdfFile;
-  List<MyCategories> items = [];
-  Widget? previewFile;
-  String? bookCover;
-  String? bookLink;
-
-  String _status = "Public";
-  String? uploadDate;
-  String? upBookId;
-
-  /*void _getCat() {
-    try {
-      dbRef.child("$dbName/Books").onChildAdded.listen((event) {
-        //items.add(event.snapshot.key.toString());
-        setState(() {});
-      });
-    } catch (e) {
-      log("edit Book Page get Category error $e");
-    }
-  }
-  */
-
-  bool isDisabled = false;
-  String price = "0.5".replaceAll(".", "*");
-  String ac = "";
-  String bookId = "0";
-  void _getPrice() {
-    dbRef.child("$dbName/Fees").onValue.listen((event) {
-      final fees = event.snapshot.value as Map;
-      isDisabled = fees['isDisable'];
-      price = fees['fee'].toString();
-      ac = fees['acc'].toString();
-      bookId = fees['bookId'].toString();
-      setState(() {});
-    });
-  }
-
-  editCover(providerLocale) {
-    bookCover != null
-        ? Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            width: MediaQuery.of(context).size.width * 0.4,
-            height: MediaQuery.of(context).size.height * 0.3,
-            child: _croppedImage != null
-                ? Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      ClipRRect(
-                          borderRadius: BorderRadius.circular(30),
-                          child: Image.network(bookCover!)),
-                    ],
-                  )
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.image,
-                        color: Colors.grey,
-                      ),
-                      Text(
-                        providerLocale.bodyBookCoverPicture,
-                        style: const TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-          )
-        : _croppedImage != null
-            ? null
-            : () => _pickAndCropImage(providerLocale);
-  }
-
-  //final title = AppBarTexts();
-  //final constText = AddBookBody();
-
-  @override
-  Widget build(BuildContext context) {
+  void _fetchBookInfo() {
     final bookInfo =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    if(txtCrtBName.text.isEmpty || txtCrtBAuth.text.isEmpty) {
-      txtCrtBName.text = bookInfo!["bookTitle"];
+    if (bookInfo != null && txtCrtBName.text.isEmpty) {
+      txtCrtBName.text = bookInfo["bookTitle"];
       txtCrtBAuth.text = bookInfo["bookAuthor"];
       txtCrtPrice.text = bookInfo["bookPrice"];
       selectedValue = bookInfo["bookCategory"];
@@ -169,12 +96,16 @@ class __UpdateBookStateState extends State<UpdateBook> {
       bookLink = bookInfo["bookLink"];
       _status = bookInfo["status"];
       uploadDate = bookInfo["date"];
-      upBookId = bookInfo['bookId'];
+      upBookId = bookInfo["bookId"];
     }
+  }
 
+  @override
+  Widget build(BuildContext context) {
     final providerLocale =
         Provider.of<AppLocalizationsNotifier>(context, listen: true)
             .localizations;
+
     return ScaffoldWidget(
       appBar: AppBar(
         title: appBarText(text: providerLocale.appBarEditBook),
@@ -186,282 +117,17 @@ class __UpdateBookStateState extends State<UpdateBook> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  MyTextFromField(
-                    isReadOnly: _uploading,
-                    textEditingController: txtCrtBName,
-                    labelText: providerLocale.bodyLblBook,
-                    hintText: providerLocale.bodyBookHintBook,
+                  _buildTextField(
+                    controller: txtCrtBName,
+                    label: providerLocale.bodyLblBook,
+                    hint: providerLocale.bodyBookHintBook,
                   ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.01,
-                  ),
-                  MyTextFromField(
-                    prefixIcon: Checkbox(
-                        value: _isTranslated,
-                        onChanged: _uploading
-                            ? null
-                            : (value) =>
-                                setState(() => _isTranslated = !_isTranslated)),
-                    isReadOnly: _uploading,
-                    textEditingController: txtCrtBAuth,
-                    labelText: _isTranslated
-                        ? providerLocale.bodyTranslated
-                        : providerLocale.bodyLblBooAuthor,
-                    hintText: _isTranslated
-                        ? providerLocale.bodyHintTrans
-                        : providerLocale.bodyHintBookAuthor,
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.01,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Material(
-                      elevation: 3,
-                      borderRadius: BorderRadius.circular(10),
-                      child: DropdownButtonFormField<String>(
-                        elevation: 3,
-                        borderRadius: BorderRadius.circular(10),
-                        value: selectedLang,
-                        hint: Text(providerLocale.bodySelectLang),
-                        onChanged: _uploading
-                            ? null
-                            : (value) {
-                                setState(() {
-                                  selectedLang = value;
-                                });
-                              },
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          labelText: providerLocale.bodyLblLanguage,
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 20.0, horizontal: 20.0),
-                        ),
-                        items: _langDrop,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.01,
-                  ),
-                  _catRow(providerLocale),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.01,
-                  ),
-                  SwitchListTile(
-                      title: Text(isFree
-                          ? providerLocale.bodyPaid
-                          : providerLocale.bodyFree),
-                      value: isFree,
-                      onChanged: (value) => isDisabled
-                          ? null
-                          : _uploading
-                              ? null
-                              : setState(() => isFree = value)),
-                  isFree ? _paidField() : Container(),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(children: [
-                      Expanded(
-                          child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap:
-                                _uploading ? null : editCover(providerLocale),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryContainer,
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              width: MediaQuery.of(context).size.width * 0.4,
-                              height: MediaQuery.of(context).size.height * 0.3,
-                              child: _croppedImage != null
-                                  ? Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(30),
-                                            child: Image.file(
-                                                File(_croppedImage!.path))),
-                                        _uploadImgProgress > 0.0
-                                            ? _uploadImgProgress >= 100.0
-                                                ? const Icon(Icons.check_circle)
-                                                : SizedBox(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.15,
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height *
-                                                            0.07,
-                                                    child: CircularProgressIndicator(
-                                                        value: _uploadImgProgress
-                                                                .roundToDouble() /
-                                                            100),
-                                                  )
-                                            : const SizedBox.shrink(),
-                                        _uploadImgProgress > 0.0
-                                            ? _uploadImgProgress >= 100.0
-                                                ? const SizedBox.shrink()
-                                                : Align(
-                                                    alignment: Alignment.center,
-                                                    child: Material(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(50),
-                                                        color: Colors.black54,
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .only(
-                                                                  left: 8.0,
-                                                                  right: 8.0),
-                                                          child: Text(
-                                                              "${_uploadImgProgress.toInt()}%"),
-                                                        )))
-                                            : const SizedBox.shrink(),
-                                      ],
-                                    )
-                                  : ClipRRect(
-                                      borderRadius:
-                                      BorderRadius.circular(30),
-                                      child: Image.network(bookCover!))
-                            ),
-                          ),
-                          Visibility(
-                              visible: _croppedImage != null,
-                              child: ElevatedButton(
-                                  onPressed: _uploading
-                                      ? null
-                                      : () => _pickAndCropImage(providerLocale),
-                                  child:
-                                      Text(providerLocale.bodyBookChangeImage)))
-                        ],
-                      )),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                          child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap: _uploading
-                                ? null
-                                : previewFile != null
-                                    ? null
-                                    : _pickPDF,
-                            child: Container(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer,
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                width: MediaQuery.of(context).size.width * 0.4,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.3,
-                                child: _pdfFile != null && previewFile != null
-                                    ? Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(30),
-                                              child: previewFile!),
-                                          _uploadPdfProgress > 0.0
-                                              ? _uploadPdfProgress >= 100.0
-                                                  ? const Icon(
-                                                      Icons.check_circle)
-                                                  : SizedBox(
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.15,
-                                                      height:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .height *
-                                                              0.07,
-                                                      child: CircularProgressIndicator(
-                                                          value: _uploadPdfProgress
-                                                                  .roundToDouble() /
-                                                              100),
-                                                    )
-                                              : const SizedBox.shrink(),
-                                          _uploadPdfProgress > 0.0
-                                              ? _uploadPdfProgress >= 100.0
-                                                  ? const SizedBox()
-                                                  : Align(
-                                                      alignment:
-                                                          Alignment.center,
-                                                      child: Material(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(50),
-                                                          color: Colors.black54,
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .only(
-                                                                    left: 8.0,
-                                                                    right: 8.0),
-                                                            child: Text(
-                                                                "${_uploadPdfProgress.toInt()}%"),
-                                                          )))
-                                              : const SizedBox.shrink(),
-                                        ],
-                                      )
-                                    : Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          const Icon(
-                                            Icons.picture_as_pdf,
-                                            color: Colors.grey,
-                                          ),
-                                          Text(
-                                            providerLocale
-                                                .bodyBookSelectBookPdf,
-                                            style: const TextStyle(
-                                                color: Colors.grey),
-                                          ),
-                                        ],
-                                      )),
-                          ),
-                          Visibility(
-                              visible: previewFile != null,
-                              child: ElevatedButton(
-                                  onPressed: _uploading ? null : _pickPDF,
-                                  child: bodyText(
-                                      text: providerLocale.bodyBookChangePDF)))
-                        ],
-                      )),
-                    ]),
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: materialButton(
-                            color: Theme.of(context).colorScheme.primary,
-                            onPressed: _uploading ? null : () => updateRow(),
-                            text: "Update",
-                            height: MediaQuery.of(context).size.height * 0.06,
-                            fontSize:
-                                MediaQuery.of(context).textScaler.scale(20),
-                            txtColor: Theme.of(context).colorScheme.onPrimary),
-                      ),
-                    ],
-                  ),
+                  _buildAuthorField(providerLocale),
+                  _buildLanguageDropdown(providerLocale),
+                  _buildCategoryRow(providerLocale),
+                  _buildPriceSwitch(providerLocale),
+                  _buildImageAndPdfUpload(providerLocale),
+                  _buildUpdateButton(providerLocale),
                 ],
               ),
             ),
@@ -471,194 +137,211 @@ class __UpdateBookStateState extends State<UpdateBook> {
     );
   }
 
-//cld
-
-  int? selectedR;
-  _paidField() {
-    final providerLocale =
-        Provider.of<AppLocalizationsNotifier>(context, listen: true)
-            .localizations;
-    return Column(
-      children: [
-        ListTile(
-          leading: const Icon(Icons.info),
-          title: Text(providerLocale.bodyNoteBBooFeeText),
-          subtitle: Text(providerLocale.bodyNoteBookPublishText),
-          trailing: TextButton(
-            onPressed: _uploading
-                ? null
-                : () {
-                    showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                              title: titleText(
-                                  text: providerLocale.bodyBookSelectOneOfThem),
-                              content: bodyText(
-                                  text:
-                                      "${providerLocale.bodyBookFeeUserErrorCont}$ac"),
-                              actions: [
-                                TextButton(
-                                    onPressed: () async {
-                                      Uri uri = Uri(
-                                          scheme: 'tel',
-                                          path: '*880*$ac*$price#');
-                                      await launchUrl(uri);
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text("Telesom")),
-                                TextButton(
-                                    onPressed: () async {
-                                      Uri uri = Uri(
-                                          scheme: 'tel',
-                                          path: '*770*$ac*$price#');
-                                      await launchUrl(uri);
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text("Hormuud")),
-                                TextButton(
-                                    onPressed: () async {
-                                      Uri uri = Uri(
-                                          scheme: 'tel',
-                                          path: '*883*$ac*$price#');
-                                      await launchUrl(uri);
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text("Golis")),
-                              ],
-                            ));
-                  },
-            child: bodyText(text: providerLocale.bodyPayFee),
-          ),
-        ),
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.01,
-        ),
-        MyTextFromField(
-          textEditingController: txtCrtPrice,
-          labelText: providerLocale.bodyLblBookPrice,
-          hintText: providerLocale.bodyHintBookPrice,
-          keyboardType: TextInputType.number,
-          isReadOnly: _uploading,
-        ),
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.01,
-        ),
-      ],
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+  }) {
+    return MyTextFromField(
+      isReadOnly: _uploading,
+      textEditingController: controller,
+      labelText: label,
+      hintText: hint,
     );
   }
 
-//////Still reamining some texts
+  Widget _buildAuthorField(dynamic providerLocale) {
+    return MyTextFromField(
+      prefixIcon: Checkbox(
+        value: _isTranslated,
+        onChanged: _uploading
+            ? null
+            : (value) => setState(() => _isTranslated = !_isTranslated),
+      ),
+      isReadOnly: _uploading,
+      textEditingController: txtCrtBAuth,
+      labelText: _isTranslated
+          ? providerLocale.bodyTranslated
+          : providerLocale.bodyLblBooAuthor,
+      hintText: _isTranslated
+          ? providerLocale.bodyHintTrans
+          : providerLocale.bodyHintBookAuthor,
+    );
+  }
 
-  _catRow(providerLocale) {
+  Widget _buildLanguageDropdown(dynamic providerLocale) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Material(
+        elevation: 3,
+        borderRadius: BorderRadius.circular(10),
+        child: DropdownButtonFormField<String>(
+          elevation: 3,
+          borderRadius: BorderRadius.circular(10),
+          value: selectedLang,
+          hint: Text(providerLocale.bodySelectLang),
+          onChanged: _uploading
+              ? null
+              : (value) => setState(() => selectedLang = value),
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            labelText: providerLocale.bodyLblLanguage,
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+          ),
+          items: _langDrop,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryRow(dynamic providerLocale) {
     return Row(
       children: [
         Expanded(
-            child: StreamBuilder<List<MyCategories>>(
-          stream: GetDatabase().getCategories(),
-          builder: (BuildContext context,
-              AsyncSnapshot<List<MyCategories>> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting &&
-                !snapshot.hasData) {
-              return const DropShimmer();
-            }
-            if (snapshot.hasData) {
-              List<MyCategories> itemsList = snapshot.data!;
-              return Row(
-                children: [
-                  Expanded(
-                    child: DropDownWidget(
-                        providerLocale: providerLocale,
-                        selectedValue: selectedValue,
-                        onChange: _uploading
-                            ? null
-                            : (onValue) {
-                                setState(() => selectedValue = onValue);
-                              },
-                        items: itemsList),
-                  ),
-                  IconButton(
-                      onPressed: _uploading
-                          ? null
-                          : () {
-                              showBottomSheet(
-                                  context: context,
-                                  builder: (context) => Material(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primaryContainer,
-                                        borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(20),
-                                            topRight: Radius.circular(20)),
-                                        child: SizedBox(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.3,
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              1,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              const Text("Add New Category"),
-                                              MyTextFromField(
-                                                isReadOnly: _uploading,
-                                                textEditingController:
-                                                    txtNewCtgry,
-                                                labelText:
-                                                    providerLocale.bodyLblBook,
-                                                hintText: providerLocale
-                                                    .bodyBookHintBook,
-                                              ),
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: materialButton(
-                                                        onPressed: () {},
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .primary,
-                                                        txtColor:
-                                                            Theme.of(context)
-                                                                .colorScheme
-                                                                .onPrimary,
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .height *
-                                                            0.05,
-                                                        text: "Add Category"),
-                                                  )
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ));
-                            },
-                      icon: const Icon(Icons.add)),
-                ],
-              );
-            } else {
+          child: StreamBuilder<List<MyCategories>>(
+            stream: GetDatabase().getCategories(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting &&
+                  !snapshot.hasData) {
+                return const DropShimmer();
+              }
+              if (snapshot.hasData) {
+                return DropDownWidget(
+                  providerLocale: providerLocale,
+                  selectedValue: selectedValue,
+                  onChange: (value) {
+                    if (!_uploading) {
+                      setState(() => selectedValue = value);
+                    }
+                  },
+                  items: snapshot.data!,
+                );
+              }
               return Center(child: Text(providerLocale.bodyNotFound));
-            }
-          },
-        )),
+            },
+          ),
+        ),
+        IconButton(
+          onPressed: _uploading
+              ? null
+              : () => _showAddCategoryBottomSheet(providerLocale),
+          icon: const Icon(Icons.add),
+        ),
       ],
     );
   }
 
-  /*Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+  Widget _buildPriceSwitch(dynamic providerLocale) {
+    return Column(
+      children: [
+        SwitchListTile(
+          title:
+              Text(isFree ? providerLocale.bodyPaid : providerLocale.bodyFree),
+          value: isFree,
+          onChanged:
+              _uploading ? null : (value) => setState(() => isFree = value),
+        ),
+        if (isFree)
+          _buildTextField(
+            controller: txtCrtPrice,
+            label: providerLocale.bodyLblBookPrice,
+            hint: providerLocale.bodyHintBookPrice,
+          ),
+      ],
+    );
+  }
 
-    setState(() {
-      _image = image;
-    });
-  }*/
-  CroppedFile? _croppedImage;
-  Future<void> _pickAndCropImage(providerLocale) async {
+  Widget _buildImageAndPdfUpload(dynamic providerLocale) {
+    return Row(
+      children: [
+        Expanded(child: _buildImageUpload(providerLocale)),
+        const SizedBox(width: 10),
+        Expanded(child: _buildPdfUpload(providerLocale)),
+      ],
+    );
+  }
+
+  Widget _buildImageUpload(dynamic providerLocale) {
+    return GestureDetector(
+      onTap: _uploading ? null : () => _pickAndCropImage(providerLocale),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        width: MediaQuery.of(context).size.width * 0.4,
+        height: MediaQuery.of(context).size.height * 0.3,
+        child: _croppedImage != null
+            ? Stack(
+                alignment: Alignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Image.file(File(_croppedImage!.path)),
+                  ),
+                  if (_uploadImgProgress > 0.0)
+                    CircularProgressIndicator(
+                      value: _uploadImgProgress / 100,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                ],
+              )
+            : ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: Image.network(bookCover ?? ""),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildPdfUpload(dynamic providerLocale) {
+    return GestureDetector(
+      onTap: _uploading ? null : _pickPDF,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        width: MediaQuery.of(context).size.width * 0.4,
+        height: MediaQuery.of(context).size.height * 0.3,
+        child: _pdfFile != null
+            ? Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (previewFile != null) previewFile!,
+                  if (_uploadPdfProgress > 0.0)
+                    CircularProgressIndicator(
+                      value: _uploadPdfProgress / 100,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                ],
+              )
+            : const Icon(Icons.picture_as_pdf, color: Colors.grey, size: 50),
+      ),
+    );
+  }
+
+  Widget _buildUpdateButton(dynamic providerLocale) {
+    return Row(
+      children: [
+        Expanded(
+          child: materialButton(
+            color: Theme.of(context).colorScheme.primary,
+            onPressed: _uploading ? null : _updateBook,
+            text: providerLocale.bodyUpdate,
+            height: MediaQuery.of(context).size.height * 0.06,
+            fontSize: MediaQuery.of(context).textScaler.scale(20),
+            txtColor: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickAndCropImage(dynamic providerLocale) async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
@@ -691,6 +374,33 @@ class __UpdateBookStateState extends State<UpdateBook> {
     }
   }
 
+  // Future<void> _pickPDF() async {
+  //   try {
+  //     FilePickerResult? result = await FilePicker.platform.pickFiles(
+  //       type: FileType.custom,
+  //       allowedExtensions: ['pdf'],
+  //     );
+  //
+  //     if (result != null && result.files.isNotEmpty) {
+  //       final thumbnail = await FilePreview.getThumbnail(
+  //         result.files.first.path!,
+  //         width: MediaQuery.of(context).size.width * 0.4,
+  //         height: MediaQuery.of(context).size.height * 0.3,
+  //       );
+  //
+  //       setState(() {
+  //         previewFile = thumbnail;
+  //         _pdfFile = File(result.files.single.path!);
+  //       });
+  //     } else {
+  //       log("No file selected or user canceled file picker.");
+  //     }
+  //   } catch (e, stackTrace) {
+  //     log("Failed to generate thumbnail: $e");
+  //     log("Stack trace: $stackTrace");
+  //   }
+  // }
+
   Future<void> _pickPDF() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -699,21 +409,55 @@ class __UpdateBookStateState extends State<UpdateBook> {
       );
 
       if (result != null && result.files.isNotEmpty) {
-        final thumbnail = await FilePreview.getThumbnail(
-          result.files.first.path!,
-          width: MediaQuery.of(context).size.width * 0.4,
-          height: MediaQuery.of(context).size.height * 0.3,
+        final filePath = result.files.first.path!;
+
+        // Create a PDF thumbnail widget instead of using OpenFilex
+        final thumbnail = Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.red.shade50,
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: Colors.red.shade200),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.picture_as_pdf,
+                color: Colors.red,
+                size: kDefaultFontSize * 3,
+              ),
+              SizedBox(height: 8),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  result.files.first.name,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         );
 
         setState(() {
-          previewFile = thumbnail;
-          _pdfFile = File(result.files.single.path!);
+          previewFile = thumbnail;  // Now it's a Widget!
+          _pdfFile = File(filePath);
+          log("File path for PDF: $filePath");
         });
+
       } else {
         log("No file selected or user canceled file picker.");
       }
     } catch (e, stackTrace) {
-      log("Failed to generate thumbnail: $e");
+      log("Failed to pick PDF: $e");
       log("Stack trace: $stackTrace");
     }
   }
@@ -790,7 +534,7 @@ class __UpdateBookStateState extends State<UpdateBook> {
     return downloadUrl;
   }
 
-  void updateRow() async {
+  void _updateBook() async {
     try {
       bool isEmpPr = isFree == false && txtCrtPrice.text.isEmpty;
       if (selectedValue == null ||
@@ -808,14 +552,16 @@ class __UpdateBookStateState extends State<UpdateBook> {
       final String? pdfDownloadUrl =
           await uploadPDFToStorage(File(_pdfFile!.path));
 
-      final DatabaseReference dbRef =
-          FirebaseDatabase.instance.ref().child("$dbName/Books/${selectedValue!}/${upBookId!}");
+      final DatabaseReference dbRef = FirebaseDatabase.instance
+          .ref()
+          .child("$dbName/Books/${selectedValue!}/${upBookId!}");
 
       final String bookName = txtCrtBName.value.text;
       final String bookAuth = txtCrtBAuth.value.text;
       final String bookPrice = txtCrtPrice.value.text;
       //final String bookPhone =txtCrtPhnNum.value.text;
-      final bookGenId = bookId;
+      final bookGenId = upBookId ??
+          const Uuid().v4(); // Use existing ID or generate a new one
       final bookDate = uploadDate;
 
       final book = BookModel(
@@ -837,8 +583,7 @@ class __UpdateBookStateState extends State<UpdateBook> {
           .toJson();
       log(book.toString());
 
-      dbRef.update(book)
-          .whenComplete(() => Navigator.pop(context));
+      dbRef.update(book).whenComplete(() => Navigator.pop(context));
 
       /*NotificationProvider().notifyAllUsers(
           title: bookName,
@@ -848,5 +593,43 @@ class __UpdateBookStateState extends State<UpdateBook> {
     } catch (e) {
       log("error");
     }
+  }
+
+  void _showAddCategoryBottomSheet(dynamic providerLocale) {
+    showBottomSheet(
+        context: context,
+        builder: (context) => Material(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.3,
+                width: MediaQuery.of(context).size.width * 1,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text("Add New Category"),
+                    MyTextFromField(
+                      isReadOnly: _uploading,
+                      textEditingController: txtNewCtgry,
+                      labelText: providerLocale.bodyLblBook,
+                      hintText: providerLocale.bodyBookHintBook,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: materialButton(
+                              onPressed: () {},
+                              color: Theme.of(context).colorScheme.primary,
+                              txtColor: Theme.of(context).colorScheme.onPrimary,
+                              height: MediaQuery.of(context).size.height * 0.05,
+                              text: "Add Category"),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ));
   }
 }

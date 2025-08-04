@@ -298,7 +298,7 @@
   "bodyLuckyNumber": "Lucky number",
   "bodyUpLuckyNum":"Update Lucky Number",
   "bodyWinUser": "Win User",
-  
+
   "bodyLastLuckyNum":"Last lucky number:",
   "bodyLastDateLucky": "Last date:",
   "bodyWinThisGift":"Win this Gift",
@@ -310,6 +310,7 @@
   "bodyPreparingGift": "Preparing new gift...",
   "bodySure": "sure",
   "bodyPriChange": "Privilege Change",
+  "bodyLoginRequired": "Login Required",
 
   "bodyLblSelectProblemIssue":  "Select Problem Issue",
   "bodyLblDescribe":  "Describe",

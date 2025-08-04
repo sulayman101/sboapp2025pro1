@@ -14,6 +14,17 @@ class TopSliders extends StatefulWidget {
 }
 
 class _TopSlidersState extends State<TopSliders> {
+  void _handleBannerTap(String? link) {
+    if (link == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: bodyText(text: ""),
+        behavior: SnackBarBehavior.floating,
+      ));
+    } else {
+      launchUrl(Uri.parse(link));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<TopBannerModel>>(
@@ -33,12 +44,7 @@ class _TopSlidersState extends State<TopSliders> {
             ),
             itemBuilder: (context, index, realIdx) {
               return GestureDetector(
-                onTap: () => snapshot.data![index].toGoLink == null
-                    ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: bodyText(text: ""),
-                        behavior: SnackBarBehavior.floating,
-                      ))
-                    : launchUrl(Uri.parse(snapshot.data![index].toGoLink!)),
+                onTap: () => _handleBannerTap(snapshot.data![index].toGoLink),
                 child: Stack(
                   alignment: Alignment.center,
                   children: [

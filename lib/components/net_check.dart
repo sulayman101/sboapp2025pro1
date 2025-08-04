@@ -10,32 +10,10 @@ class NetworkCheckPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ConnectivityProvider>(
       builder: (context, connectivityProvider, child) {
-        String? connectionStatus;
-        connectivityProvider.connectionStatus.map((result) {
-          if (result == ConnectivityResult.none) {
-            connectionStatus = 'Disconnected';
-          }
-          /*switch (result) {
-            case ConnectivityResult.wifi:
-              connectionStatus = 'Connected to Wi-Fi';
-              break;
-            case ConnectivityResult.mobile:
-              connectionStatus = 'Connected to Mobile Network';
-              break;
-            case ConnectivityResult.vpn:
-              connectionStatus = 'Connected to VPN';
-              break;
-            case ConnectivityResult.bluetooth:
-              connectionStatus = 'Connected to bluetooth';
-              break;
-            case ConnectivityResult.none:
-              connectionStatus = 'Disconnected';
-              break;
-            default:
-              connectionStatus = 'Unknown';
-              break;
-          }*/
-        }).toList();
+        final connectionStatus =
+            connectivityProvider.connectionStatus == ConnectivityResult.none
+                ? 'Disconnected'
+                : 'Connected';
 
         return connectionStatus == "Disconnected"
             ? Container(

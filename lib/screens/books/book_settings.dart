@@ -16,60 +16,62 @@ class BookSettings extends StatelessWidget {
     final providerLocale =
         Provider.of<AppLocalizationsNotifier>(context, listen: true)
             .localizations;
-    final role = ModalRoute.of(context)?.settings.arguments as List;
-    final uploader = ModalRoute.of(context)?.settings.arguments as List;
+    final arguments = ModalRoute.of(context)?.settings.arguments as List;
+    final role = arguments[0];
+    final uploader = arguments[1];
+
     return ScaffoldWidget(
-        appBar: AppBar(
-          title: appBarText(text: providerLocale.appBarManage),
-        ),
-        body: Column(
-          children: [
-            Visibility(
-              visible: role[0] == "Admin" || role[0] == "Agent",
-              child: CardSettings(
-                leading: const Icon(CupertinoIcons.book_fill),
-                title: bodyText(text: providerLocale.bodyAddBook),
-                onTap: () {
-                  Navigator.pushNamed(context, "/addBook");
-                },
-              ),
+      appBar: AppBar(
+        title: appBarText(text: providerLocale.appBarManage),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(8.0),
+        children: [
+          if (role == "Admin" || role == "Agent")
+            _buildCard(
+              icon: CupertinoIcons.book_fill,
+              text: providerLocale.bodyAddBook,
+              onTap: () => Navigator.pushNamed(context, "/addBook"),
             ),
-            Visibility(
-              visible: role[0] == "Owner" ||
-                  role[0] == "Admin" ||
-                  role[0] == "Agent",
-              child: CardSettings(
-                leading: const Icon(Icons.book_rounded),
-                title: bodyText(text: providerLocale.bodyManage),
-                onTap: () {
-                  log(role[0]);
-                  Navigator.pushNamed(
-                      context,
-                      role[0] == "Admin" || role[0] == "Owner"
-                          ? "/manAllBooks"
-                          : "/myBooks");
-                },
-              ),
-            ),
-            CardSettings(
-              leading: const Icon(Icons.local_library),
-              title: bodyText(text: providerLocale.bodyFavAnPaidBook),
+          if (role == "Owner" || role == "Admin" || role == "Agent")
+            _buildCard(
+              icon: Icons.book_rounded,
+              text: providerLocale.bodyManage,
               onTap: () {
-                Navigator.pushNamed(context, "/favBook");
+                log(role);
+                Navigator.pushNamed(
+                  context,
+                  role == "Admin" || role == "Owner"
+                      ? "/manAllBooks"
+                      : "/myBooks",
+                );
               },
             ),
-            Visibility(
-              visible:
-                  uploader[1] == null || uploader[1] == false ? true : false,
-              child: CardSettings(
-                leading: const Icon(Icons.request_page),
-                title: bodyText(text: providerLocale.bodyRequestUploadBook),
-                onTap: () {
-                  Navigator.pushNamed(context, "/reqUpBook");
-                },
-              ),
+          _buildCard(
+            icon: Icons.local_library,
+            text: providerLocale.bodyFavAnPaidBook,
+            onTap: () => Navigator.pushNamed(context, "/favBook"),
+          ),
+          if (uploader == null || uploader == false)
+            _buildCard(
+              icon: Icons.request_page,
+              text: providerLocale.bodyRequestUploadBook,
+              onTap: () => Navigator.pushNamed(context, "/reqUpBook"),
             ),
-          ],
-        ));
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCard({
+    required IconData icon,
+    required String text,
+    required VoidCallback onTap,
+  }) {
+    return CardSettings(
+      leading: Icon(icon),
+      title: bodyText(text: text),
+      onTap: onTap,
+    );
   }
 }

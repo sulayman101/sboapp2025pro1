@@ -1,17 +1,9 @@
+String convertLang(String language, dynamic providerLocale) {
+  final languageMap = {
+    "Somali": providerLocale.bodySomali,
+    "Arabic": providerLocale.bodyArabic,
+    "English": providerLocale.bodyEnglish,
+  };
 
-
-String convertLang(String language, providerLocale) {
-  String somali = providerLocale.bodySomali;
-  String arabic = providerLocale.bodyArabic;
-  String english = providerLocale.bodyEnglish;
-  switch (language) {
-    case "Somali":
-      return somali;
-    case "Arabic":
-      return arabic;
-    case "English":
-      return english;
-    default:
-      return "Unkown";
-  }
+  return languageMap[language] ?? "Unknown";
 }

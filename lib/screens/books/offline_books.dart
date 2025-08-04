@@ -1,4 +1,3 @@
-
 import 'dart:developer';
 import 'dart:io';
 
@@ -23,87 +22,119 @@ class OfflineBooks extends StatefulWidget {
 }
 
 class _OfflineBooksState extends State<OfflineBooks> {
-
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<OfflineBooksProvider>(context);
 
     return ScaffoldWidget(
       appBar: AppBar(
-        title: Text("Offline Books"),
+        title: const Text("Offline Books"),
         actions: [
           IconButton(
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: titleText(text: "Clear Notifications"),
-                      content: bodyText(
-                          text: "Do you went to Clear all Offline Books?"),
-                      actions: [
-                        TextButton(
-                            onPressed: (){
-                              provider.deleteAllBook();
-                              Navigator.pop(context);
-                            },
-                            child: const Text("Clear")),
-                        TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text("Cancel"))
-                      ],
-                    ));
-              },
-              icon: const Icon(Icons.cleaning_services))
+            onPressed: () => _showClearAllDialog(context, provider),
+            icon: const Icon(Icons.cleaning_services),
+          ),
         ],
       ),
-      body: provider.offlineBooks.isNotEmpty ? ListView.builder(
-              itemCount: provider.offlineBooks.length,
-              itemBuilder: (context, index) {
-                final List<OfflineBooksModel> offlineBooks = provider.offlineBooks;
-                offlineBooks.sort((a, b) => b.bookDate.compareTo(a.bookDate));
-                final File imageFile =File(offlineBooks[index].bookImg);
-                return Card.filled(
-                  child: ListTile(
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(5),
-                        child: Image.file(imageFile)),
-                    title: lTitleText(text: offlineBooks[index].book),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        lSubTitleText(text: offlineBooks[index].author),
-                        bodyText(text: offlineBooks[index].bookLang)
-                      ],
-                    ),
-                    trailing: IconButton(onPressed:(){ showDialog(context: context, builder: (context)=> AlertDialog(title: titleText(
-                        text: "Delete"),
-                      content: bodyText(text: "Do you went to delete ${offlineBooks[index].book}"),
-                      actions: [
-                        MaterialButton(
-                          color: Theme.of(context).colorScheme.error,
-                            onPressed: (){ provider.deleteBook(offlineBooks[index].bookId);
-                            Navigator.pop(context);
-                            }, child: buttonText(text:"Delete")),
-                        TextButton(onPressed: ()=> Navigator.pop(context), child: buttonText(text: "Cancel")),
+      body: provider.offlineBooks.isNotEmpty
+          ? _buildOfflineBooksList(provider)
+          : const Center(child: Text("No Books Offline")),
+    );
+  }
 
-                      ],
-                    ),
-                    );}, icon: Icon(Icons.delete)),
-                    onTap: (){
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ReadingPage(
-                                bookLink: offlineBooks[index].bookPath,
-                                title: offlineBooks[index].book,
-                              )));
-                    },
-                  ),
-                );
+  Widget _buildOfflineBooksList(OfflineBooksProvider provider) {
+    final offlineBooks = provider.offlineBooks
+      ..sort((a, b) => b.bookDate.compareTo(a.bookDate));
 
-              },
-            ): const Center(child: Text("No Books Offline"),));
+    return ListView.builder(
+      itemCount: offlineBooks.length,
+      itemBuilder: (context, index) {
+        final book = offlineBooks[index];
+        final imageFile = File(book.bookImg);
+
+        return Card.filled(
+          child: ListTile(
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: Image.file(imageFile),
+            ),
+            title: lTitleText(text: book.book),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                lSubTitleText(text: book.author),
+                bodyText(text: book.bookLang),
+              ],
+            ),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () => _showDeleteDialog(context, provider, book),
+            ),
+            onTap: () => _openBook(context, book),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showClearAllDialog(
+      BuildContext context, OfflineBooksProvider provider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: titleText(text: "Clear Offline Books"),
+        content: bodyText(text: "Do you want to clear all offline books?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              provider.deleteAllBooks();
+              Navigator.pop(context);
+            },
+            child: const Text("Clear"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context, OfflineBooksProvider provider,
+      OfflineBooksModel book) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: titleText(text: "Delete Book"),
+        content: bodyText(text: "Do you want to delete ${book.book}?"),
+        actions: [
+          MaterialButton(
+            color: Theme.of(context).colorScheme.error,
+            onPressed: () {
+              provider.deleteBook(book.bookId);
+              Navigator.pop(context);
+            },
+            child: buttonText(text: "Delete"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: buttonText(text: "Cancel"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openBook(BuildContext context, OfflineBooksModel book) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ReadingPage(
+          bookLink: book.bookPath,
+          title: book.book,
+        ),
+      ),
+    );
   }
 }

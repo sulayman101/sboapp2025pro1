@@ -14,30 +14,58 @@ class AddCategory extends StatefulWidget {
 }
 
 class _AddCategoryState extends State<AddCategory> {
-  final _txtCat = TextEditingController();
-  final _txtCaver = TextEditingController();
+  final _txtCategory = TextEditingController();
+  final _txtArabicName = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final providerLocale =
         Provider.of<AppLocalizationsNotifier>(context, listen: true)
             .localizations;
+
     return ScaffoldWidget(
-        appBar: AppBar(
-          title: appBarText(text: providerLocale.appBarAddCategory),
-        ),
-        body: Column(
+      appBar: AppBar(
+        title: appBarText(text: providerLocale.appBarAddCategory),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
           children: [
-            MyTextFromField(
-                labelText: providerLocale.bodyLblCategory,
-                hintText: providerLocale.bodyHintCategory,
-                textEditingController: _txtCat),
-            MyTextFromField(
-                labelText: providerLocale.bodyBookLblAr,
-                hintText: providerLocale.bodyBookHintAr,
-                textEditingController: _txtCaver),
-            materialButton(onPressed: () {}, text: providerLocale.bodyAdd),
+            _buildTextField(
+              controller: _txtCategory,
+              label: providerLocale.bodyLblCategory,
+              hint: providerLocale.bodyHintCategory,
+            ),
+            _buildTextField(
+              controller: _txtArabicName,
+              label: providerLocale.bodyBookLblAr,
+              hint: providerLocale.bodyBookHintAr,
+            ),
+            _buildAddButton(providerLocale),
           ],
-        ));
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+  }) {
+    return MyTextFromField(
+      labelText: label,
+      hintText: hint,
+      textEditingController: controller,
+    );
+  }
+
+  Widget _buildAddButton(dynamic providerLocale) {
+    return materialButton(
+      onPressed: () {
+        // Add category logic here
+      },
+      text: providerLocale.bodyAdd,
+    );
   }
 }

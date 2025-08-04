@@ -20,9 +20,8 @@ class UsersPage extends StatefulWidget {
 class _UsersPageState extends State<UsersPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  // ignore: unused_field
   late String _selectedRole;
+
   static const menuItems = <String>[
     'Admin',
     'User',
@@ -30,14 +29,12 @@ class _UsersPageState extends State<UsersPage>
     'Agent',
     'Delete',
   ];
+
   final List<PopupMenuItem<String>> _popUpMenuItems = menuItems
-      .map(
-        (String value) =>
-        PopupMenuItem<String>(
-          value: value,
-          child: Text(value),
-        ),
-  )
+      .map((String value) => PopupMenuItem<String>(
+            value: value,
+            child: Text(value),
+          ))
       .toList();
 
   @override
@@ -46,602 +43,371 @@ class _UsersPageState extends State<UsersPage>
     _tabController = TabController(length: 3, vsync: this);
   }
 
-  Widget _tabView() {
-    final role = ModalRoute
-        .of(context)
-        ?.settings
-        .arguments as List;
+  @override
+  Widget build(BuildContext context) {
+    final role = ModalRoute.of(context)?.settings.arguments as List;
+    final providerLocale =
+        Provider.of<AppLocalizationsNotifier>(context, listen: true)
+            .localizations;
+
+    return ScaffoldWidget(
+      appBar: AppBar(
+        title: Text(role[0] == "Agent" ? "Agent Members" : "Users"),
+      ),
+      body: Column(
+        children: [
+          _buildTabBar(providerLocale, role),
+          Expanded(child: _buildTabView(role)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar(dynamic providerLocale, List role) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TabBar(
+        controller: _tabController,
+        unselectedLabelColor: Theme.of(context).colorScheme.primary,
+        labelColor: Theme.of(context).colorScheme.onPrimary,
+        indicator: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary,
+          borderRadius: const BorderRadius.only(
+            topRight: Radius.circular(10),
+            topLeft: Radius.circular(10),
+          ),
+        ),
+        tabs: [
+          Tab(
+              text: role[0] == "Agent"
+                  ? providerLocale.bodyActive
+                  : providerLocale.bodyAllUsers),
+          Tab(
+              text: role[0] == "Agent"
+                  ? providerLocale.bodyRequests
+                  : providerLocale.bodyAllAgents),
+          Tab(
+              text: role[0] == "Agent"
+                  ? providerLocale.bodyRejects
+                  : providerLocale.bodyAllAdmins),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabView(List role) {
     return TabBarView(
       controller: _tabController,
       children: [
-        role[0] == "Agent" ? manAgentsUsers(tabName: "Active") : usersAndAgents(
-            tabName: "Users"),
-        role[0] == "Agent" ? manAgentsUsers(tabName: "Inactive") : usersAndAgents(
-            tabName: "Agents"),
-        role[0] == "Agent" ? manAgentsUsers(tabName: "Reject") : usersAndAgents(
-            tabName: "Admins")
+        role[0] == "Agent"
+            ? _buildAgentUsersTab("Active")
+            : _buildUsersAndAgentsTab("Users"),
+        role[0] == "Agent"
+            ? _buildAgentUsersTab("Inactive")
+            : _buildUsersAndAgentsTab("Agents"),
+        role[0] == "Agent"
+            ? _buildAgentUsersTab("Reject")
+            : _buildUsersAndAgentsTab("Admins"),
       ],
     );
   }
 
-  Widget _tabBar() {
-    final providerLocale =
-        Provider
-            .of<AppLocalizationsNotifier>(context, listen: true)
-            .localizations;
-    final role = ModalRoute
-        .of(context)
-        ?.settings
-        .arguments as List;
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TabBar(
-          unselectedLabelColor: Theme
-              .of(context)
-              .colorScheme
-              .primary,
-          labelColor: Theme
-              .of(context)
-              .colorScheme
-              .onPrimary,
-          tabAlignment: TabAlignment.fill,
-          indicatorWeight: 2,
-          indicatorPadding: EdgeInsets.zero,
-          splashBorderRadius: const BorderRadius.only(
-              topRight: Radius.circular(10), topLeft: Radius.circular(10)),
-          indicatorSize: TabBarIndicatorSize.tab,
-          dividerColor: Theme
-              .of(context)
-              .colorScheme
-              .primary,
-          dividerHeight: 2,
-          indicator: BoxDecoration(
-              color: Theme
-                  .of(context)
-                  .colorScheme
-                  .primary,
-              borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(10), topLeft: Radius.circular(10))),
-          isScrollable: false,
-          controller: _tabController,
-          tabs: [
-            role[0] == "Agent"
-                ? Tab(text: providerLocale.bodyActive)
-                : Tab(text: providerLocale.bodyAllUsers),
-            role[0] == "Agent"
-                ? Tab(text: providerLocale.bodyRequests)
-                : Tab(text: providerLocale.bodyAllAgents),
-            role[0] == "Agent"
-                ? Tab(
-              text: providerLocale.bodyRejects,
-            )
-                : Tab(text: providerLocale.bodyAllAdmins),
-          ]),
-    );
-  }
-
-  _rowUserInfo({required String title, String? textValue, Widget? value}) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              customText(text: "$title: ", fontWeight: FontWeight.bold),
-            ],
-          ),
-          Expanded(child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              value ?? customText(text: textValue!,
-                maxLines: 3,
-              ),
-            ],
-          ))
-        ],),
-    );
-  }
-
-  Widget usersAndAgents({tabName}) {
+  Widget _buildUsersAndAgentsTab(String tabName) {
     return Consumer<GetDatabase>(
-      builder: (BuildContext context, GetDatabase value, Widget? child) {
-        final provider = context.watch<GetDatabase>();
+      builder: (context, provider, child) {
         return StreamBuilder<List<UserModel>>(
           stream: provider.usersController.stream,
-          builder:
-              (BuildContext context, AsyncSnapshot<List<UserModel>> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting &&
-                !snapshot.hasData) {
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasData) {
-              if (tabName == "Admins") {
-
-              }
-              if (tabName == "Agents") {
-                return agents(snapshot);
-              } else {
-                return users(snapshot, provider);
-              }
-            } else {
-              return const Center(child: Text("No Data"),);
+              return tabName == "Admins"
+                  ? _buildAdminsList(snapshot.data!)
+                  : _buildUsersList(snapshot.data!, provider);
             }
+            return const Center(child: Text("No Data"));
           },
         );
       },
     );
   }
 
-  Widget users(snapshot, provider) {
-    final providerLocale =
-        Provider
-            .of<AppLocalizationsNotifier>(context, listen: true)
-            .localizations;
+  Widget _buildUsersList(List<UserModel> users, GetDatabase provider) {
     return ListView.builder(
-        itemCount: snapshot.data!.length,
-        itemBuilder: (context, index) {
-          return Card.filled(
-            child: ListTile(
-              onTap: () {
-                showModalBottomSheet(
-                    context: context, builder: (context) =>
-                    SizedBox(
-                      width: double.infinity,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 8.0),
-                            child: Container(
-                              width: MediaQuery
-                                  .of(context)
-                                  .size
-                                  .width * 0.15,
-                              height: MediaQuery
-                                  .of(context)
-                                  .size
-                                  .height * 0.01,
-                              decoration: BoxDecoration(
-                                  color: Colors.grey,
-                                  borderRadius: BorderRadius
-                                      .circular(30)
-                              ),
-                            ),
-                          ),
-
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 8.0),
-                            child: titleText(
-                                text: "User Info", fontSize: 20),
-                          ),
-                          Center(child:
-                          CircleAvatar(
-                              radius: 50,
-                              child: snapshot.data![index]
-                                  .profile == null
-                                  ? Icon(Icons.person, size: 20,)
-                                  : ClipRRect(
-                                  borderRadius: BorderRadius
-                                      .circular(50),
-                                  child: CachedNetworkImage(
-                                      imageUrl: snapshot
-                                          .data![index]
-                                          .profile!))),
-                          ),
-                          _rowUserInfo(title: "UID",
-                              textValue: snapshot.data![index].uid
-                                  .toString()),
-                          _rowUserInfo(title: "Name",
-                              textValue: snapshot.data![index]
-                                  .name),
-                          _rowUserInfo(title: "Email",
-                              textValue: snapshot.data![index]
-                                  .email),
-                          _rowUserInfo(title: "Phone",
-                              textValue: snapshot.data![index]
-                                  .phone.toString()),
-                          _rowUserInfo(title: "is Verified",
-                              value: snapshot.data![index]
-                                  .isVerify ? Icon(Icons.verified,
-                                color: Colors.blue,) : Icon(
-                                Icons.verified,
-                                color: Colors.grey,)),
-                          _rowUserInfo(title: "Role",
-                              textValue: snapshot.data![index]
-                                  .role),
-                          _rowUserInfo(title: "is Author",
-                              textValue: snapshot.data![index]
-                                  .author.toString()),
-                          _rowUserInfo(title: "Subscriber",
-                              value: snapshot.data![index]
-                                  .subscription == null
-                                  ? const Icon(
-                                  Icons.remove_circle_outlined)
-                                  : snapshot.data![index]
-                                  .subscription!.subscribe!
-                                  ? Icon(Icons.check_circle)
-                                  : Icon(
-                                  Icons.remove_circle_outlined)),
-                          _rowUserInfo(title: "is Uploader",
-                              value: snapshot.data![index]
-                                  .uploader == null ||
-                                  snapshot.data![index].uploader!
-                                  ? Icon(Icons.close)
-                                  : Icon(Icons.check)),
-                          _rowUserInfo(title: "FCM Token",
-                              textValue: snapshot.data![index]
-                                  .token.toString()),
-                          const Divider(),
-                          materialButton(
-                              color: Theme
-                                  .of(context)
-                                  .colorScheme
-                                  .primary,
-                              onPressed: () =>
-                                  Navigator.pop(context),
-                              text: "Done"),
-                        ],),
-                    ));
-              },
-              leading: snapshot.data![index].profile == null
-                  ? const CircleAvatar(
-                  child: Icon(CupertinoIcons.person_alt))
-                  : CircleAvatar(
-                  child: ClipOval(
-                      child: Image.network(
-                          snapshot.data![index].profile!))),
-              title: Text(snapshot.data![index].name),
-              subtitle: Text(snapshot.data![index].email),
-              trailing: PopupMenuButton<String>(
-                onSelected: (String newValue) {
-                  _selectedRole = newValue;
-                  switch (newValue) {
-                    case "Delete":
-                      showDialog(
-                          context: context,
-                          builder: (context) =>
-                              _alert(
-                                bodyText(
-                                    text:
-                                    "${providerLocale
-                                        .bodyDoWentDelete} ${snapshot
-                                        .data![index].name}"),
-                                    () {
-                                  provider.userPrevilage(
-                                      snapshot.data![index].uid,
-                                      newValue);
-                                  Navigator.pop(context);
-                                },
-                              ));
-                    default:
-                      showDialog(
-                          context: context,
-                          builder: (context) =>
-                              _alert(
-                                snapshot.data![index].role ==
-                                    "Admin"
-                                    ? bodyText(
-                                    text: providerLocale
-                                        .bodyNotChangeAdmins)
-                                    : bodyText(
-                                    text: providerLocale
-                                        .bodyRoleActions(
-                                        snapshot
-                                            .data![index].role,
-                                        newValue,
-                                        snapshot.data![index]
-                                            .name)),
-                                    () {
-                                  provider.userPrevilage(
-                                      snapshot.data![index].uid,
-                                      newValue);
-                                  Navigator.pop(context);
-                                },
-                              ));
-                  }
-                },
-                itemBuilder: (BuildContext context) => _popUpMenuItems,
-              ),
+      itemCount: users.length,
+      itemBuilder: (context, index) {
+        final user = users[index];
+        return Card.filled(
+          child: ListTile(
+            onTap: () => _showUserDetails(user),
+            leading: CircleAvatar(
+              child: user.profile == null
+                  ? const Icon(CupertinoIcons.person_alt)
+                  : ClipOval(
+                      child: CachedNetworkImage(imageUrl: user.profile!)),
             ),
-          );
-        });
+            title: Text(user.name),
+            subtitle: Text(user.email),
+            trailing: PopupMenuButton<String>(
+              onSelected: (value) => _handleUserAction(value, user, provider),
+              itemBuilder: (context) => _popUpMenuItems,
+            ),
+          ),
+        );
+      },
+    );
   }
 
-  Widget agents(snapshot) {
-    List<UserModel> agents = [];
-    for (var element in snapshot.data!) {
-      if (element.role == "Agent") {
-        agents.add(element);
-      }
-    }
-    if (agents.isNotEmpty) {
-      return ListView.builder(
-          itemCount: agents.length,
-          itemBuilder: (context, index) {
-            return Card.filled(
-              child: ListTile(
-                leading: agents[index].profile == null
-                    ? const CircleAvatar(
-                    child: Icon(CupertinoIcons.person_alt))
-                    : CircleAvatar(
-                    child: ClipOval(
-                        child:
-                        Image.network(agents[index].profile!))),
-                title: Text(agents[index].name),
-                subtitle: Text(agents[index].email),
-              ),
-            );
-          });
-    } else {
-      return const Center(child: Text("No Agents"),);
-    }
-  }
-
-
-  Widget admins(snapshot) {
-    List<UserModel> admins = [];
-    for (var element in snapshot.data!) {
-      if (element.role == "Admin") {
-        admins.add(element);
-      }
-    }
-    if (admins.isNotEmpty) {
-      return ListView.builder(
-          itemCount: admins.length,
-          itemBuilder: (context, index) {
-            return Card.filled(
-              child: ListTile(
-                leading: admins[index].profile == null
-                    ? const CircleAvatar(
-                    child: Icon(CupertinoIcons.person_alt))
-                    : CircleAvatar(
-                    child: ClipOval(
-                        child:
-                        Image.network(admins[index].profile!))),
-                title: Text(admins[index].name),
-                subtitle: Text(admins[index].email),
-              ),
-            );
-          });
-    } else {
+  Widget _buildAdminsList(List<UserModel> admins) {
+    final adminUsers = admins.where((user) => user.role == "Admin").toList();
+    if (adminUsers.isEmpty) {
       return const Center(child: Text("No Admins"));
     }
+    return ListView.builder(
+      itemCount: adminUsers.length,
+      itemBuilder: (context, index) {
+        final admin = adminUsers[index];
+        return Card.filled(
+          child: ListTile(
+            leading: CircleAvatar(
+              child: admin.profile == null
+                  ? const Icon(CupertinoIcons.person_alt)
+                  : ClipOval(
+                      child: CachedNetworkImage(imageUrl: admin.profile!)),
+            ),
+            title: Text(admin.name),
+            subtitle: Text(admin.email),
+          ),
+        );
+      },
+    );
   }
 
-  Widget manAgentsUsers({tabName}){
+  Widget _buildAgentUsersTab(String condition) {
     return Consumer<GetDatabase>(
-        builder: (BuildContext context, GetDatabase value, Widget? child) {
-      final provider = context.read<GetDatabase>();
-      return StreamBuilder<List<UserReqModel>>(
+      builder: (context, provider, child) {
+        return StreamBuilder<List<UserReqModel>>(
           stream: provider.userReqController.stream,
-          builder: (BuildContext context,
-          AsyncSnapshot<List<UserReqModel>> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting &&
-                !snapshot.hasData) {
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasData) {
-              if(tabName == "Active"){
-                return agentUsers(tabName, snapshot, provider);
-              }
-              if(tabName == "Inactive"){
-                return agentUsers(tabName, snapshot, provider);
-              }else{
-                return agentUsers(tabName, snapshot, provider);
-              }
-            } else {
-              return Center(child: Text("No Data"),);
+              return _buildAgentUsersList(condition, snapshot.data!, provider);
             }
-            });
-          });
-  }
-
-  Widget agentUsers(String condition, snapshot, provider) {
-    final providerLocale =
-        Provider
-            .of<AppLocalizationsNotifier>(context, listen: false)
-            .localizations;
-    return ListView.builder(
-        itemCount: snapshot.data!.length,
-        itemBuilder: (context, index) {
-          return snapshot.data![index].status == condition
-              ? ListTile(
-            /*leading: snapshot.data![index].profile == null
-                            ? const CircleAvatar(
-                            child: Icon(CupertinoIcons.person_alt))
-                            : CircleAvatar(child: ClipOval(child: Image.network(
-                            snapshot.data![index].profile!))),*/
-            title: Text(snapshot.data![index].name),
-            subtitle: Text(snapshot.data![index].email),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                snapshot.data![index].status == "Active" ||
-                    condition == "Reject"
-                    ? IconButton(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) =>
-                            AlertDialog(
-                              backgroundColor:
-                              Colors.redAccent,
-                              title: const Text(
-                                  "Remove Agent"),
-                              content: Text(providerLocale
-                                  .bodyUserManActions(
-                                  snapshot
-                                      .data![index]
-                                      .name)),
-                              actions: [
-                                ElevatedButton(
-                                    onPressed: () {
-                                      provider.deleteMember(
-                                          snapshot
-                                              .data![
-                                          index]
-                                              .uid);
-                                      Navigator.pop(
-                                          context);
-                                    },
-                                    child: Text(
-                                        providerLocale
-                                            .bodyRemove)),
-                                TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(
-                                          context);
-                                    },
-                                    child: Text(
-                                        providerLocale
-                                            .bodyCancel))
-                              ],
-                            ));
-                  },
-                  icon: const Icon(
-                      CupertinoIcons.minus_circle),
-                )
-                    : const SizedBox(),
-                snapshot.data![index].status == "Inactive"
-                    ? IconButton(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) =>
-                            AlertDialog(
-                              backgroundColor:
-                              Colors.orangeAccent,
-                              title: const Text(
-                                  "Reject Member"),
-                              content: Text(
-                                  "Do you want to reject ${snapshot
-                                      .data![index]
-                                      .name} from your agent."),
-                              actions: [
-                                ElevatedButton(
-                                    onPressed: () {
-                                      provider.opMembers(
-                                          snapshot
-                                              .data![
-                                          index]
-                                              .uid,
-                                          "Reject");
-                                      Navigator.pop(
-                                          context);
-                                    },
-                                    child: const Text(
-                                        "Reject")),
-                                TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(
-                                          context);
-                                    },
-                                    child: const Text(
-                                        "Cancel"))
-                              ],
-                            ));
-                  },
-                  icon: const Icon(CupertinoIcons.xmark),
-                )
-                    : const SizedBox(),
-                snapshot.data![index].status == "Inactive" ||
-                    condition == "Reject"
-                    ? IconButton(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) =>
-                            AlertDialog(
-                              backgroundColor:
-                              Colors.greenAccent,
-                              title: const Text(
-                                  "Accept member"),
-                              content: Text(
-                                  "Do you want to accept ${snapshot
-                                      .data![index]
-                                      .name} from your agent."),
-                              actions: [
-                                ElevatedButton(
-                                    onPressed: () {
-                                      provider.opMembers(
-                                          snapshot
-                                              .data![
-                                          index]
-                                              .uid,
-                                          "Active");
-                                      Navigator.pop(
-                                          context);
-                                    },
-                                    child: const Text(
-                                        "Accept")),
-                                TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(
-                                          context);
-                                    },
-                                    child: const Text(
-                                        "Cancel"))
-                              ],
-                            ));
-                  },
-                  icon: const Icon(
-                      CupertinoIcons.checkmark_alt),
-                )
-                    : const SizedBox(),
-              ],
-            ),
-          )
-              : const SizedBox();
-        });
-  }
-
-  Widget _alert(Widget content, VoidCallback onPressed) {
-        final providerLocale =
-            Provider
-                .of<AppLocalizationsNotifier>(context, listen: true)
-                .localizations;
-        return AlertDialog(
-          title: bodyText(text: providerLocale.bodyPriChange),
-          content: content,
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: bodyText(text: providerLocale.bodyCancel)),
-            ElevatedButton(
-                onPressed: onPressed,
-                child: bodyText(text: providerLocale.bodySure))
-          ],
+            return const Center(child: Text("No Data"));
+          },
         );
-      }
-
-      @override
-      Widget build(BuildContext context) {
-        final role = ModalRoute
-            .of(context)
-            ?.settings
-            .arguments as List;
-        // ignore: unused_local_variable
-        final providerLocale =
-            Provider
-                .of<AppLocalizationsNotifier>(context, listen: false)
-                .localizations;
-        return ScaffoldWidget(
-            appBar: AppBar(
-              title: role[0] == "Agent"
-                  ? const Text("Agent Members")
-                  : const Text("Users"),
-            ),
-            body: Column(
-              children: [
-                _tabBar(),
-                Expanded(child: _tabView()),
-              ],
-            ));
-      }
+      },
+    );
   }
+
+  Widget _buildAgentUsersList(
+      String condition, List<UserReqModel> users, GetDatabase provider) {
+    final filteredUsers =
+        users.where((user) => user.status == condition).toList();
+    if (filteredUsers.isEmpty) {
+      return const Center(child: Text("No Data"));
+    }
+    return ListView.builder(
+      itemCount: filteredUsers.length,
+      itemBuilder: (context, index) {
+        final user = filteredUsers[index];
+        return ListTile(
+          title: Text(user.name),
+          subtitle: Text(user.email),
+          trailing: _buildAgentActions(user, condition, provider),
+        );
+      },
+    );
+  }
+
+  Widget _buildAgentActions(
+      UserReqModel user, String condition, GetDatabase provider) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (condition == "Active" || condition == "Reject")
+          IconButton(
+            onPressed: () => _showRemoveAgentDialog(user, provider),
+            icon: const Icon(CupertinoIcons.minus_circle),
+          ),
+        if (condition == "Inactive")
+          IconButton(
+            onPressed: () => _showRejectAgentDialog(user, provider),
+            icon: const Icon(CupertinoIcons.xmark),
+          ),
+        if (condition == "Inactive" || condition == "Reject")
+          IconButton(
+            onPressed: () => _showAcceptAgentDialog(user, provider),
+            icon: const Icon(CupertinoIcons.checkmark_alt),
+          ),
+      ],
+    );
+  }
+
+  void _showUserDetails(UserModel user) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 50,
+            child: user.profile == null
+                ? const Icon(Icons.person, size: 20)
+                : ClipOval(child: CachedNetworkImage(imageUrl: user.profile!)),
+          ),
+          _buildUserInfoRow("UID", user.uid!),
+          _buildUserInfoRow("Name", user.name),
+          _buildUserInfoRow("Email", user.email),
+          _buildUserInfoRow("Phone", user.phone.toString()),
+          _buildUserInfoRow("Role", user.role),
+          materialButton(
+            text: "Done",
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserInfoRow(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Text("$title: ", style: const TextStyle(fontWeight: FontWeight.bold)),
+          Expanded(child: Text(value)),
+        ],
+      ),
+    );
+  }
+
+  void _handleUserAction(String action, UserModel user, GetDatabase provider) {
+    switch (action) {
+      case "Delete":
+        _showDeleteUserDialog(user, provider);
+        break;
+      default:
+        _showChangeRoleDialog(action, user, provider);
+    }
+  }
+
+  void _showDeleteUserDialog(UserModel? user, GetDatabase provider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Delete User"),
+        content: Text("Do you want to delete ${user!.name}?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              provider.userPrevilage(user.uid!, "Delete");
+              Navigator.pop(context);
+            },
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showChangeRoleDialog(
+      String newRole, UserModel user, GetDatabase provider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Change Role"),
+        content: Text("Do you want to change ${user.name}'s role to $newRole?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              provider.userPrevilage(user.uid!, newRole);
+              Navigator.pop(context);
+            },
+            child: const Text("Change"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRemoveAgentDialog(UserReqModel user, GetDatabase provider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Remove Agent"),
+        content: Text("Do you want to remove ${user.name} as an agent?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              provider.deleteMember(user.uid);
+              Navigator.pop(context);
+            },
+            child: const Text("Remove"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRejectAgentDialog(UserReqModel user, GetDatabase provider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Reject Agent"),
+        content: Text("Do you want to reject ${user.name}'s request?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              provider.opMembers(user.uid, "Reject");
+              Navigator.pop(context);
+            },
+            child: const Text("Reject"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAcceptAgentDialog(UserReqModel user, GetDatabase provider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Accept Agent"),
+        content: Text("Do you want to accept ${user.name}'s request?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              provider.opMembers(user.uid, "Active");
+              Navigator.pop(context);
+            },
+            child: const Text("Accept"),
+          ),
+        ],
+      ),
+    );
+  }
+}

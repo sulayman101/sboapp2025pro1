@@ -23,22 +23,33 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen> {
   final _txtSmsCode = TextEditingController();
-  String? dialCode;
-  String? _txtNum;
   Timer? _timer;
   int _start = 120;
+
+  @override
+  void initState() {
+    super.initState();
+    startTimer(); // Start the timer when the screen is initialized
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancel the timer when the screen is disposed
+    _txtSmsCode.dispose(); // Dispose of the text controller
+    super.dispose();
+  }
 
   // Start the countdown timer
   void startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_start > 0) {
+      if (_start > 0) {
+        setState(() {
           _start--;
-        } else {
-          _timer?.cancel();
-          _clearTimerState(); // Clear the timer state when countdown finishes
-        }
-      });
+        });
+      } else {
+        _timer?.cancel();
+        _clearTimerState();
+      }
     });
   }
 
@@ -51,10 +62,31 @@ class _OtpScreenState extends State<OtpScreen> {
     await prefs.remove("num");
   }
 
+  // Handle phone number verification
+  Future<void> _verifyPhoneNumber(AuthServices authProvider) async {
+    await authProvider.linkPhoneNumber(_txtSmsCode.text);
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text(
+            "Congratulations! Your number has been verified successfully.")));
+    Navigator.pop(context); // Close the bottom sheet
+  }
+
+  // Handle resend OTP logic
+  Future<void> _resendOtp(AuthServices authProvider) async {
+    await authProvider.verifyPhoneNumber(widget.txtNum);
+    ScaffoldMessenger.of(context).showSnackBar(customizedSnackBar(
+        title: "OTP",
+        message: "Code sent to ${widget.txtNum}",
+        contentType: ContentType.success));
+    startTimer(); // Restart the timer after resending OTP
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthServices>(context, listen: false);
     final Size size = MediaQuery.of(context).size;
+
     return ScaffoldWidget(
         body: Column(
       mainAxisSize: MainAxisSize.min,
@@ -64,7 +96,7 @@ class _OtpScreenState extends State<OtpScreen> {
           padding: const EdgeInsets.all(8.0),
           child: bodyText(
               text:
-                  "We have just sent a 6-digit verification code to $_txtNum. Please check your SMS to verify."),
+                  "We have just sent a 6-digit verification code to ${widget.txtNum}. Please check your SMS to verify."),
         ),
         Pinput(
           controller: _txtSmsCode,
@@ -74,28 +106,13 @@ class _OtpScreenState extends State<OtpScreen> {
         materialButton(
             color: Theme.of(context).colorScheme.primary,
             txtColor: Theme.of(context).colorScheme.onPrimary,
-            onPressed: () async {
-              await authProvider.linkPhoneNumber(
-                  authProvider.verificationId, _txtSmsCode.text);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  behavior: SnackBarBehavior.floating,
-                  content: Text(
-                      "Congratulations! Your number has been verified successfully.")));
-              Navigator.pop(context); // Close the bottom sheet
-            },
+            onPressed: () => _verifyPhoneNumber(authProvider),
             text: "Verify"),
         SizedBox(height: size.height * 0.05),
         TextButton(
             onPressed: _timer != null && _start > 0
                 ? null
-                : () async {
-                    await authProvider.verifyPhoneNumber(widget.txtNum);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        customizedSnackBar(
-                            title: "OTP",
-                            message: "Code sent to ${widget.txtNum}",
-                            contentType: ContentType.success));
-                  },
+                : () => _resendOtp(authProvider),
             child: buttonText(
                 text: _timer != null && _start > 0
                     ? 'Resend in $_start sec'

@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sboapp/Constants/text_style.dart';
@@ -8,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 class SocialMediaRow extends StatelessWidget {
   const SocialMediaRow({super.key});
 
-  void _launchURL(String url) async {
+  Future<void> _launchURL(String url) async {
     final uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       throw Exception('Could not launch $url');
@@ -17,36 +15,46 @@ class SocialMediaRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final socialLinks = [
+      {
+        'icon': FontAwesomeIcons.facebook,
+        'color': Colors.blue,
+        'url': 'https://facebook.com/sboapp2023'
+      },
+      {
+        'icon': FontAwesomeIcons.tiktok,
+        'color': Colors.black,
+        'url': 'https://tiktok.com/@sboapp'
+      },
+      {
+        'icon': FontAwesomeIcons.telegram,
+        'color': Colors.blueAccent,
+        'url': 'https://t.me/sboapp'
+      },
+      {
+        'icon': FontAwesomeIcons.whatsapp,
+        'color': Colors.green,
+        'url': 'https://chat.whatsapp.com/IO1zysxDnuHCEg8IxnLkHM'
+      },
+    ];
+
     return Padding(
-      padding: const EdgeInsets.only(top:8.0),
+      padding: const EdgeInsets.only(top: 8.0),
       child: Material(
         elevation: 3,
         borderRadius: BorderRadius.circular(10),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
-
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: titleText(text: "Follow us On"),
             ),
-            IconButton(
-              icon: const FaIcon(FontAwesomeIcons.facebook, color: Colors.blue),
-              onPressed: () => _launchURL('https://facebook.com/sboapp2023'),
-            ),
-            IconButton(
-              icon: const FaIcon(FontAwesomeIcons.tiktok, color: Colors.black),
-              onPressed: () => _launchURL('https://tiktok.com/@sboapp'),
-            ),
-            IconButton(
-              icon: const FaIcon(FontAwesomeIcons.telegram, color: Colors.blueAccent),
-              onPressed: () => _launchURL('https://t.me/sboapp'),
-            ),
-            IconButton(
-              icon: const FaIcon(FontAwesomeIcons.whatsapp, color: Colors.green),
-              onPressed: () => _launchURL('https://chat.whatsapp.com/IO1zysxDnuHCEg8IxnLkHM'),
-            ),
+            ...socialLinks.map((link) => IconButton(
+                  icon: FaIcon(link['icon'] as IconData,
+                      color: link['color'] as Color),
+                  onPressed: () => _launchURL(link['url'] as String),
+                )),
           ],
         ),
       ),

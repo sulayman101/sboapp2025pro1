@@ -33,7 +33,7 @@ class MyTextFromField extends StatefulWidget {
       this.isReadOnly,
       this.maxLines,
       this.maxLength,
-      this.suffixIcon});
+      this.suffixIcon,  bool? enabled});
 
   @override
   State<MyTextFromField> createState() => _MyTextFromFieldState();

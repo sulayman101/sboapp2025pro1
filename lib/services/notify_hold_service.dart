@@ -3,85 +3,73 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:sboapp/services/auth_services.dart';
-import 'package:sboapp/services/get_database.dart';
 import 'package:http/http.dart' as http;
 import 'package:googleapis_auth/auth_io.dart' as auth;
+import 'package:sboapp/services/auth_services.dart';
+import 'package:sboapp/services/get_database.dart';
 
 class NotificationProvider with ChangeNotifier {
-  //sendNotification
+  final DatabaseReference _databaseRef = FirebaseDatabase.instance.ref();
+  final String _firebaseEndpoint =
+      'https://fcm.googleapis.com/v1/projects/sboapp-2a2be/messages:send';
+  final String _serviceAccountJson = 'assets/json/service-account-file.json';
 
-  void updateToken(token) async {
-    if (token != null) {
-      DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
-      final tokenExist = await databaseRef
-          .child('$dbName/Users/${AuthServices().fireAuth.currentUser!.uid}')
-          .once();
-      if (tokenExist.snapshot.value != null) {
-        final tokenId = tokenExist.snapshot.value as Map;
-        if (tokenId['token'].toString() != token.toString()) {
-          databaseRef
-              .child(
-              '$dbName/Users/${AuthServices().fireAuth.currentUser!.uid}')
-              .update({
-            'token': token.toString(),
-          });
-        }
+  int _secondsLeft = 60;
+  late Timer _timer;
+
+  String get message => "Undo in $_secondsLeft seconds";
+
+  // Update user token in the database
+  void updateToken(String? token) async {
+    if (token == null) return;
+
+    final userRef = _databaseRef
+        .child('$dbName/Users/${AuthServices().fireAuth.currentUser!.uid}');
+    final tokenSnapshot = await userRef.once();
+
+    if (tokenSnapshot.snapshot.value != null) {
+      final tokenData = tokenSnapshot.snapshot.value as Map;
+      if (tokenData['token'] != token) {
+        userRef.update({'token': token});
       }
     }
   }
 
+  // Notify all users or specific roles
   void notifyAllUsers({
     required String title,
     required String body,
     String? bookLink,
     String? link,
     String? imgLink,
-    mySelect,
+    String? roleFilter,
   }) async {
-    DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
     try {
-      // Listen for changes in the database and add data to the stream
-      databaseRef.child('$dbName/Users/').onChildAdded.listen((event) {
+      _databaseRef.child('$dbName/Users/').onChildAdded.listen((event) {
         if (event.snapshot.value != null) {
-          final data = event.snapshot.value as Map;
-          final token = data['token'];
-          final role = data['role'];
-          if (mySelect == null) {
-            log(token);
-            if (token != null) {
-              sendNotificationToTokens(
-                  token: token.toString(),
-                  title: title,
-                  body: body,
-                  bookLink: bookLink,
-                  link: link,
-                  imgLink: imgLink);
-            }
-          } else if (role == mySelect) {
-            log("$token $mySelect $role");
-            if (token != null) {
-              sendNotificationToTokens(
-                  token: token.toString(),
-                  title: title,
-                  body: body,
-                  bookLink: bookLink,
-                  link: link,
-                  imgLink: imgLink);
-            }
+          final userData = event.snapshot.value as Map;
+          final token = userData['token'];
+          final role = userData['role'];
+
+          if (token != null && (roleFilter == null || role == roleFilter)) {
+            sendNotificationToToken(
+              token: token,
+              title: title,
+              body: body,
+              bookLink: bookLink,
+              link: link,
+              imgLink: imgLink,
+            );
           }
         }
       });
     } catch (e) {
-      log("Token Update Error: $e");
+      log("Error notifying users: $e");
     }
   }
 
-  // The path to your service account JSON file
-  final String serviceAccountJson = 'assets/json/service-account-file.json';
-
+  // Get OAuth2 access token
   Future<String> getAccessToken() async {
-    // Read the service account JSON file
     final jsonCredentials = {
       "type": "service_account",
       "project_id": "sboapp-2a2be",
@@ -100,29 +88,28 @@ class NotificationProvider with ChangeNotifier {
       "universe_domain": "googleapis.com"
     };
 
-    List<String> scopes = [
+    final scopes = [
       "https://www.googleapis.com/auth/firebase.messaging",
       "https://www.googleapis.com/auth/firebase.database",
-      "https://www.googleapis.com/auth/firebase.messaging"
     ];
 
-    http.Client client = await auth.clientViaServiceAccount(
-        auth.ServiceAccountCredentials.fromJson(jsonCredentials), scopes);
+    final client = await auth.clientViaServiceAccount(
+      auth.ServiceAccountCredentials.fromJson(jsonCredentials),
+      scopes,
+    );
 
-    //get access
-    auth.AccessCredentials credentials =
-        await auth.obtainAccessCredentialsViaServiceAccount(
-            auth.ServiceAccountCredentials.fromJson(jsonCredentials),
-            scopes,
-            client);
+    final credentials = await auth.obtainAccessCredentialsViaServiceAccount(
+      auth.ServiceAccountCredentials.fromJson(jsonCredentials),
+      scopes,
+      client,
+    );
 
     client.close();
-
-    // Return the access token
     return credentials.accessToken.data;
   }
 
-  Future<void> sendNotificationToTokens({
+  // Send notification to a specific token
+  Future<void> sendNotificationToToken({
     required String token,
     required String title,
     required String body,
@@ -130,52 +117,18 @@ class NotificationProvider with ChangeNotifier {
     String? bookLink,
     String? imgLink,
   }) async {
-    const String firebaseEndpoint =
-        'https://fcm.googleapis.com/v1/projects/sboapp-2a2be/messages:send';
+    final accessToken = await getAccessToken();
 
-    // Replace this with your generated OAuth2 access token
-    String accessToken = await getAccessToken();
-
-    // Build the message payload
-    final Map<String, dynamic> message = {
+    final message = {
       'message': {
         'token': token,
-        'notification': {
-          'title': title,
-          'body': body,
-        },
+        'notification': {'title': title, 'body': body},
         'android': {
-          'notification': {
-            'image': imgLink,
-          }
+          'notification': {'image': imgLink}
         },
-        'data': {
-          'imgLink': imgLink,
-          'bookLink': bookLink,
-          'link': link,
-        }
-      }
-    };
-
-    /*final Map<String, dynamic> message = {
-      'message': {
-        'token': token,
-        'notification': {
-          'title': title,
-          'body': body,
-        },
-        'android': {
-          'notification': {
-            'imageUrl': imgLink,
-          }
-        },
-        'data': {
-          'imgLink': imgLink,
-          'bookLink': bookLink,
-          'link': link,
-        }
+        'data': {'imgLink': imgLink, 'bookLink': bookLink, 'link': link},
       },
-    };*/
+    };
 
     final headers = {
       'Content-Type': 'application/json',
@@ -184,7 +137,7 @@ class NotificationProvider with ChangeNotifier {
 
     try {
       final response = await http.post(
-        Uri.parse(firebaseEndpoint),
+        Uri.parse(_firebaseEndpoint),
         headers: headers,
         body: jsonEncode(message),
       );
@@ -192,90 +145,19 @@ class NotificationProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         log('Notification sent successfully');
       } else {
-        log('Failed to send notification. Status: ${response.statusCode},');
+        log('Failed to send notification. Status: ${response.statusCode}');
       }
     } catch (e) {
       log('Error sending notification: $e');
-      rethrow;
     }
   }
 
-  //ended
-
-/*List<NotificationModel> _notifications = [];
-
-  List<NotificationModel> get notifications => _notifications;
-
-  NotificationProvider() {
-    loadNotifications();
-  }
-
-  Stream<List<NotificationModel>> loadNotifications() async* {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    String? notificationsJson = sp.getString('notifications');
-    if (notificationsJson != null) {
-      List<dynamic> decodedList = jsonDecode(notificationsJson);
-      _notifications =
-          decodedList.map((item) => NotificationModel.fromMap(item)).toList();
-    }
-    notifyListeners();
-    yield _notifications;
-  }
-
-  Future<void> addNotification(NotificationModel notification) async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    _notifications.add(notification);
-    String encodedList =
-        jsonEncode(_notifications.map((e) => e.toMap()).toList());
-    sp.setString('notifications', encodedList);
-    notifyListeners();
-  }*/
-
-  int secondsLeft = 60;
-  late Timer _timer;
-
-  //int get _secondsLeft => secondsLeft;
-  String get message => "Undo in $secondsLeft seconds";
-
-  setTopBanner({title, toGoLink, imgLink}) {
-    if (secondsLeft == 0) {
-      FirebaseDatabase.instance.ref("$dbName/TopBanner").push().set({
-        'imgLink': imgLink,
-        'title': title,
-        'toGoLink': toGoLink,
-        'uid': AuthServices().fireAuth.currentUser!.uid,
-        'date': DateTime.timestamp().toString(),
-      });
-      secondsLeft = 60;
-      notifyListeners();
-    }
-  }
-
-  sendNotify(
-      {required String title,
-      required String body,
-        String? link,
-      String? imgLink,
-        String? bookLink,
-      mySelect}) {
-    notifyAllUsers(
-        title: title, body: body,link: link, imgLink: imgLink, bookLink: bookLink, mySelect: mySelect);
-    if (secondsLeft > 1) {
-      secondsLeft = 60;
-    }
-    notifyListeners();
-  }
-
-  messageProvider() {
-    if (secondsLeft == 0) secondsLeft = 60;
-    _startTimer();
-    notifyListeners();
-  }
-
-  void _startTimer() {
+  // Start a timer for undo functionality
+  void startTimer() {
+    _secondsLeft = 60;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (secondsLeft > 0) {
-        secondsLeft -= 1;
+      if (_secondsLeft > 0) {
+        _secondsLeft--;
         notifyListeners();
       } else {
         _timer.cancel();
@@ -285,9 +167,29 @@ class NotificationProvider with ChangeNotifier {
   }
 
   void stopTimer() {
-    secondsLeft = 60;
+    _secondsLeft = 60;
     _timer.cancel();
     notifyListeners();
+  }
+
+  void sendNotify({
+    required String title,
+    required String body,
+    String? link,
+    String? imgLink,
+    String? bookLink,
+    String? roleFilter,
+    String? mySelect,
+  }) {
+    notifyAllUsers(
+      title: title,
+      body: body,
+      link: link,
+      imgLink: imgLink,
+      bookLink: bookLink,
+      roleFilter: roleFilter,
+    );
+    startTimer();
   }
 
   @override

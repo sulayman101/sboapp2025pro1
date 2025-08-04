@@ -597,7 +597,7 @@ class ImageNetCache extends StatelessWidget {
       this.fit,
       this.width,
       this.height,
-      this.imageSize});
+      this.imageSize, Widget? errorWidget});
 
   @override
   Widget build(BuildContext context) {

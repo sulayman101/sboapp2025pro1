@@ -1,50 +1,59 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../l10n/app_localizations.dart';
 
 class AppLocalizationsNotifier extends ChangeNotifier {
   late AppLocalizations _localizations;
-  Locale selectedLocal = const Locale("en");
+  Locale _selectedLocale = const Locale("en");
 
   AppLocalizationsNotifier() {
-    _localizations =
-        lookupAppLocalizations(WidgetsBinding.instance.window.locale);
-    final observer = _LocaleObserver((locales) {
-      _localizations =
-          lookupAppLocalizations(WidgetsBinding.instance.window.locale);
-      notifyListeners();
-    });
-    final binding = WidgetsBinding.instance;
-    binding.addObserver(observer);
+    _initializeLocalizations();
+    WidgetsBinding.instance.addObserver(_LocaleObserver(_onLocaleChanged));
   }
 
   AppLocalizations get localizations => _localizations;
+  Locale get selectedLocale => _selectedLocale;
 
-  void changeLocale(Locale newLocale) async {
-    SharedPreferences sharedPref = await SharedPreferences.getInstance();
-    sharedPref.setString('local', newLocale.languageCode.toString());
-    _localizations = lookupAppLocalizations(newLocale);
-    selectedLocal = newLocale;
+  Future<void> changeLocale(Locale newLocale) async {
+    final sharedPref = await SharedPreferences.getInstance();
+    await sharedPref.setString('locale', newLocale.languageCode);
+    _updateLocalizations(newLocale);
+  }
+
+  Future<void> loadSavedLocale() async {
+    final sharedPref = await SharedPreferences.getInstance();
+    final savedLocaleCode = sharedPref.getString('locale');
+    if (savedLocaleCode != null) {
+      _updateLocalizations(Locale(savedLocaleCode));
+    }
+  }
+
+  void _initializeLocalizations() {
+    _updateLocalizations(WidgetsBinding.instance.window.locale);
+  }
+
+  void _updateLocalizations(Locale locale) {
+    _localizations = lookupAppLocalizations(locale);
+    _selectedLocale = locale;
     notifyListeners();
   }
 
-  void getLocale() async {
-    SharedPreferences sharedLocal = await SharedPreferences.getInstance();
-    final String? local = sharedLocal.getString("local");
-    if (local != null) {
-      _localizations = lookupAppLocalizations(Locale(local));
-      selectedLocal = Locale(local);
+  void _onLocaleChanged(List<Locale>? locales) {
+    if (locales != null && locales.isNotEmpty) {
+      _updateLocalizations(locales.first);
     }
-    notifyListeners();
   }
 }
 
 class _LocaleObserver extends WidgetsBindingObserver {
-  _LocaleObserver(this._didChangeLocales);
-  final void Function(List<Locale>?) _didChangeLocales;
+  final void Function(List<Locale>?) onLocaleChanged;
+
+  _LocaleObserver(this.onLocaleChanged);
 
   @override
   void didChangeLocales(List<Locale>? locales) {
-    _didChangeLocales(locales);
+    onLocaleChanged(locales);
   }
 }
